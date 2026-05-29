@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AnalyticsController } from './analytics.controller';
+import { WebVitalsAnalyticsController } from './web-vitals.controller';
 import { PlatformAnalyticsService } from './services/platform-analytics.service';
 import { QuestAnalyticsService } from './services/quest-analytics.service';
 import { UserAnalyticsService } from './services/user-analytics.service';
+import { WebVitalsAnalyticsService } from './services/web-vitals.service';
 import { CacheService } from './services/cache.service';
 import { AnalyticsReportService } from './services/report.service';
 import { AnalyticsAggregationService } from './services/aggregation.service';
@@ -34,11 +36,12 @@ import { User as AnalyticsUser } from './entities/user.entity';
       max: 100, // max items in cache
     }),
   ],
-  controllers: [AnalyticsController],
+  controllers: [AnalyticsController, WebVitalsAnalyticsController],
   providers: [
     PlatformAnalyticsService,
     QuestAnalyticsService,
     UserAnalyticsService,
+    WebVitalsAnalyticsService,
     CacheService,
     AnalyticsReportService,
     AnalyticsAggregationService,
