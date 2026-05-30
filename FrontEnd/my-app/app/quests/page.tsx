@@ -7,6 +7,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { FilterPanel } from '@/components/quest/FilterPanel';
 import { QuestList } from '@/components/quest/QuestList';
+import { OfflineIndicator } from '@/components/quest/OfflineIndicator';
 import { Pagination } from '@/components/ui/Pagination';
 import { mockQuests } from '@/lib/mock/quests';
 import { QuestStatus, QuestDifficulty } from '@/lib/types/quest';
@@ -14,11 +15,13 @@ import type { Quest } from '@/lib/types/quest';
 import LazyLoad from '@/components/ui/LazyLoad';
 import { ComponentErrorBoundary } from '@/components/error/ErrorBoundary';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { useOnlineStatus } from '@/lib/hooks/useOnlineStatus';
 
 function QuestsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const { isOnline } = useOnlineStatus();
 
   // Get filters from URL params
   const statusParam = searchParams.get('status');
@@ -159,8 +162,21 @@ function QuestsContent() {
     [router]
   );
 
+  // Retry handler for reloading quests when coming back online
+  const handleRetry = useCallback(async () => {
+    // In a real app, this would refetch from the API
+    // For now, just a no-op since we're using mock data
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }, []);
+
   return (
     <AppLayout>
+      {/* Offline Indicator */}
+      <OfflineIndicator
+        isOffline={!isOnline}
+        message="You appear to be offline. Quest data may not load properly."
+      />
+
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header content */}
         <div
@@ -232,6 +248,7 @@ function QuestsContent() {
                 onQuestClick={handleQuestClick}
                 hasActiveFilters={hasActiveFilters}
                 onClearFilters={handleClearFilters}
+                onRetry={handleRetry}
               />
             </LazyLoad>
           </div>
