@@ -9,7 +9,12 @@ import { FraudRiskRulesService } from './services/fraud-risk-rules.service';
 import { QuotaModule } from '../quota/quota.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payout]), ScheduleModule.forRoot(), EventEmitterModule, QuotaModule],
+  imports: [
+    TypeOrmModule.forFeature([Payout]),
+    ScheduleModule.forRoot(),
+    EventEmitterModule,
+    QuotaModule,
+  ],
   controllers: [PayoutsController],
   providers: [PayoutsService, FraudRiskRulesService],
   exports: [PayoutsService, FraudRiskRulesService],

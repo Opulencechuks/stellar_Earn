@@ -35,6 +35,8 @@ export class SoftDeleteUtil<T extends Record<string, any>> {
 /**
  * Extension method for SelectQueryBuilder to add soft delete functionality
  */
-export function withSoftDelete<T extends Record<string, any>>(queryBuilder: SelectQueryBuilder<T>): SoftDeleteUtil<T> {
+export function withSoftDelete<T extends Record<string, any>>(
+  queryBuilder: SelectQueryBuilder<T>,
+): SoftDeleteUtil<T> {
   return new SoftDeleteUtil(queryBuilder);
 }

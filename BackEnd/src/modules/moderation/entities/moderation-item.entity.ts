@@ -64,7 +64,11 @@ export class ModerationItem {
   @Column({ type: 'jsonb', nullable: true })
   imageFlags: { url: string; reason: string }[] | null;
 
-  @Column({ type: 'varchar', length: 32, default: ModerationItemStatus.PENDING })
+  @Column({
+    type: 'varchar',
+    length: 32,
+    default: ModerationItemStatus.PENDING,
+  })
   @Index()
   status: ModerationItemStatus;
 

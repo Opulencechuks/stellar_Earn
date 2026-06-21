@@ -26,7 +26,7 @@ class TypeORMQueryLogger implements Logger {
   private readonly logger = new AppLoggerService();
   private readonly slowQueryThreshold = parseInt(
     process.env.SLOW_QUERY_THRESHOLD || '1000',
-    10
+    10,
   );
 
   private readonly enableQueryLogging =
@@ -107,9 +107,7 @@ export const dataSourceOptions: DataSourceOptions = {
     QuotaUsage,
   ],
 
-  migrations: [
-    path.join(__dirname, 'migrations', '*.{ts,js}'),
-  ],
+  migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
 
   migrationsTableName: 'typeorm_migrations',
   synchronize: false,
@@ -122,7 +120,7 @@ export const dataSourceOptions: DataSourceOptions = {
 
   maxQueryExecutionTime: parseInt(
     process.env.SLOW_QUERY_THRESHOLD || '1000',
-    10
+    10,
   ),
 
   extra: {
@@ -131,12 +129,12 @@ export const dataSourceOptions: DataSourceOptions = {
 
     connectionTimeoutMillis: parseInt(
       process.env.DB_POOL_CONNECTION_TIMEOUT ?? '10000',
-      10
+      10,
     ),
 
     idleTimeoutMillis: parseInt(
       process.env.DB_POOL_IDLE_TIMEOUT ?? '30000',
-      10
+      10,
     ),
   },
 };

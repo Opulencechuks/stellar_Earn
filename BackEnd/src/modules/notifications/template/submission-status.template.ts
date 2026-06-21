@@ -17,7 +17,6 @@ const assertNonEmptyString = (value: unknown, field: string): void => {
   }
 };
 
-
 const assertNumberOptional = (value: unknown, field: string): void => {
   if (value === undefined) return;
   if (typeof value !== 'number' || Number.isNaN(value)) {
@@ -39,7 +38,7 @@ export const renderSubmissionStatusTemplate: NotificationTemplateRenderFn<
     assertNonEmptyString(approved.questTitle, 'questTitle');
     assertNumberOptional(approved.rewardAmount, 'rewardAmount');
 
-    const rendered = engine.render(submissionApprovedEmailTemplate as EmailTemplate, {
+    const rendered = engine.render(submissionApprovedEmailTemplate, {
       username: approved.username,
       questTitle: approved.questTitle,
       rewardAmount: approved.rewardAmount,
@@ -54,7 +53,7 @@ export const renderSubmissionStatusTemplate: NotificationTemplateRenderFn<
   assertNonEmptyString(rejected.questTitle, 'questTitle');
   assertNonEmptyString(rejected.reason, 'reason');
 
-  const rendered = engine.render(submissionRejectedEmailTemplate as EmailTemplate, {
+  const rendered = engine.render(submissionRejectedEmailTemplate, {
     username: rejected.username,
     questTitle: rejected.questTitle,
     reason: rejected.reason,
@@ -62,4 +61,3 @@ export const renderSubmissionStatusTemplate: NotificationTemplateRenderFn<
 
   return rendered;
 };
-

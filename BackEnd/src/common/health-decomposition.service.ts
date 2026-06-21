@@ -26,15 +26,29 @@ export class HealthDecompositionService {
     ]);
 
     const components: Record<string, ComponentHealth> = {
-      database: db.status === 'fulfilled' ? db.value : { status: 'down', detail: String((db as PromiseRejectedResult).reason) },
-      redis: redis.status === 'fulfilled' ? redis.value : { status: 'down', detail: String((redis as PromiseRejectedResult).reason) },
+      database:
+        db.status === 'fulfilled'
+          ? db.value
+          : {
+              status: 'down',
+              detail: String(db.reason),
+            },
+      redis:
+        redis.status === 'fulfilled'
+          ? redis.value
+          : {
+              status: 'down',
+              detail: String(redis.reason),
+            },
     };
 
-    const overall: HealthStatus = Object.values(components).some((c) => c.status === 'down')
+    const overall: HealthStatus = Object.values(components).some(
+      (c) => c.status === 'down',
+    )
       ? 'down'
       : Object.values(components).some((c) => c.status === 'degraded')
-      ? 'degraded'
-      : 'ok';
+        ? 'degraded'
+        : 'ok';
 
     return { status: overall, components };
   }

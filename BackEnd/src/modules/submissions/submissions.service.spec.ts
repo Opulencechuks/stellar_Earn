@@ -19,24 +19,28 @@ const buildUpdateBuilder = (affected = 1) => {
 describe('SubmissionsService (N+1 prevention)', () => {
   let service: SubmissionsService;
   let submissionsRepo: any;
-  let notifications: { sendSubmissionApproved: jest.Mock; sendSubmissionRejected: jest.Mock };
+  let notifications: {
+    sendSubmissionApproved: jest.Mock;
+    sendSubmissionRejected: jest.Mock;
+  };
 
-  const buildSubmission = () => new SubmissionBuilder()
-    .withId('sub-1')
-    .withQuestId('quest-1')
-    .withUserId('user-1')
-    .withStatus('PENDING' as any)
-    .withProof({})
-    .withQuest({
-      id: 'quest-1',
-      title: 'Complete KYC',
-      rewardAmount: 10,
-    })
-    .withUser({
-      id: 'user-1',
-      stellarAddress: 'GABC',
-    })
-    .build();
+  const buildSubmission = () =>
+    new SubmissionBuilder()
+      .withId('sub-1')
+      .withQuestId('quest-1')
+      .withUserId('user-1')
+      .withStatus('PENDING' as any)
+      .withProof({})
+      .withQuest({
+        id: 'quest-1',
+        title: 'Complete KYC',
+        rewardAmount: 10,
+      })
+      .withUser({
+        id: 'user-1',
+        stellarAddress: 'GABC',
+      })
+      .build();
 
   beforeEach(async () => {
     submissionsRepo = {
@@ -67,16 +71,15 @@ describe('SubmissionsService (N+1 prevention)', () => {
 
     // Bypass the (currently stubbed) verifier-authorization check so the
     // tests can focus on the data-access code path under test.
-    jest
-      .spyOn(service as any, 'checkAdminRole')
-      .mockResolvedValue(true);
+    jest.spyOn(service as any, 'checkAdminRole').mockResolvedValue(true);
   });
 
   describe('approveSubmission', () => {
     it('eager-loads quest+user relations in one findOne and never re-fetches them', async () => {
       const submission = buildSubmission();
       submissionsRepo.findOne.mockResolvedValue(submission);
-      submissionsRepo.createQueryBuilder = buildUpdateBuilder().createQueryBuilder;
+      submissionsRepo.createQueryBuilder =
+        buildUpdateBuilder().createQueryBuilder;
 
       const result = await service.approveSubmission(
         'sub-1',
@@ -111,7 +114,8 @@ describe('SubmissionsService (N+1 prevention)', () => {
     it('eager-loads quest+user relations in one findOne and never re-fetches them', async () => {
       const submission = buildSubmission();
       submissionsRepo.findOne.mockResolvedValue(submission);
-      submissionsRepo.createQueryBuilder = buildUpdateBuilder().createQueryBuilder;
+      submissionsRepo.createQueryBuilder =
+        buildUpdateBuilder().createQueryBuilder;
 
       const result = await service.rejectSubmission(
         'sub-1',

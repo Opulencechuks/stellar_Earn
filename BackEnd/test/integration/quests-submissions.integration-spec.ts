@@ -67,7 +67,8 @@ describe('Quests-Submissions Integration', () => {
     it('should create quest and allow user to submit work', async () => {
       // Create a test user
       const user = await usersService.create({
-        stellarAddress: 'GBQUEST123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBQUEST123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Quest Tester',
       });
 
@@ -110,7 +111,8 @@ describe('Quests-Submissions Integration', () => {
     it('should handle quest completion and user stats updates', async () => {
       // Create user and quest
       const user = await usersService.create({
-        stellarAddress: 'GBSTATS123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBSTATS123456789012345678901234567890123456789012345678901234567890',
       });
 
       const quest = await questsService.create({
@@ -135,7 +137,7 @@ describe('Quests-Submissions Integration', () => {
       // Approve submission (simulating admin action)
       const approvedSubmission = await submissionsService.updateStatus(
         submission.id,
-        'approved'
+        'approved',
       );
 
       // Verify submission status
@@ -150,7 +152,8 @@ describe('Quests-Submissions Integration', () => {
     it('should prevent duplicate submissions for same quest by same user', async () => {
       // Create user and quest
       const user = await usersService.create({
-        stellarAddress: 'GBDUPE123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBDUPE123456789012345678901234567890123456789012345678901234567890',
       });
 
       const quest = await questsService.create({
@@ -181,7 +184,7 @@ describe('Quests-Submissions Integration', () => {
           userId: user.id,
           content: 'Second submission',
           proofOfWork: 'proof2',
-        })
+        }),
       ).rejects.toThrow(); // Assuming service prevents duplicates
     });
   });
@@ -190,7 +193,8 @@ describe('Quests-Submissions Integration', () => {
     it('should emit events when quest submission status changes', async () => {
       // Create user and quest
       const user = await usersService.create({
-        stellarAddress: 'GBEVENT123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBEVENT123456789012345678901234567890123456789012345678901234567890',
       });
 
       const quest = await questsService.create({
@@ -226,7 +230,9 @@ describe('Quests-Submissions Integration', () => {
 
       // In a real implementation, we would wait for the event
       // For this test, we just verify the status change worked
-      const updatedSubmission = await submissionsService.findById(submission.id);
+      const updatedSubmission = await submissionsService.findById(
+        submission.id,
+      );
       expect(updatedSubmission.status).toBe('approved');
     });
   });

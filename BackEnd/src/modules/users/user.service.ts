@@ -17,7 +17,10 @@ export interface ReputationAtomicSideEffects {
    * Runs inside the same DB transaction as the reputation update.
    * Throwing aborts the transaction (no user update, no side effects).
    */
-  persist?: (manager: EntityManager, result: ReputationUpdateResult) => Promise<void>;
+  persist?: (
+    manager: EntityManager,
+    result: ReputationUpdateResult,
+  ) => Promise<void>;
 }
 
 @Injectable()
@@ -138,7 +141,9 @@ export class UserService {
       const user = await repo.findOne({ where: { id: userId } });
 
       if (!user) {
-        throw new NotFoundException(`User not found during rollback: ${userId}`);
+        throw new NotFoundException(
+          `User not found during rollback: ${userId}`,
+        );
       }
 
       user.xp = oldXp;

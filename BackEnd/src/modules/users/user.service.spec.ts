@@ -4,7 +4,10 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { User } from './entities/user.entity';
 import { Quest } from '../quests/entities/quest.entity';
-import { Submission, SubmissionStatus } from '../submissions/entities/submission.entity';
+import {
+  Submission,
+  SubmissionStatus,
+} from '../submissions/entities/submission.entity';
 import { SubmissionBuilder } from '../../../test/utils/submission.builder';
 import { Payout } from '../payouts/entities/payout.entity';
 import { Role } from '../../common/enums/role.enum';
@@ -301,7 +304,7 @@ describe('UsersService', () => {
             .withStatus(SubmissionStatus.APPROVED)
             .withQuest({ category: 'development' })
             .build(),
-          { createdAt: new Date(), approvedAt: new Date(Date.now() + 3600000) }
+          { createdAt: new Date(), approvedAt: new Date(Date.now() + 3600000) },
         ),
         Object.assign(
           new SubmissionBuilder()
@@ -309,7 +312,7 @@ describe('UsersService', () => {
             .withStatus(SubmissionStatus.PENDING)
             .withQuest({ category: 'development' })
             .build(),
-          { createdAt: new Date() }
+          { createdAt: new Date() },
         ),
         Object.assign(
           new SubmissionBuilder()
@@ -317,7 +320,7 @@ describe('UsersService', () => {
             .withStatus(SubmissionStatus.REJECTED)
             .withQuest({ category: 'testing' })
             .build(),
-          { createdAt: new Date() }
+          { createdAt: new Date() },
         ),
       ];
 
@@ -426,7 +429,10 @@ describe('UsersService', () => {
         ...updateData,
       });
 
-      const result = await service.updateProfile(user.stellarAddress, updateData);
+      const result = await service.updateProfile(
+        user.stellarAddress,
+        updateData,
+      );
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({
         where: { stellarAddress: user.stellarAddress },
@@ -447,10 +453,7 @@ describe('UsersService', () => {
 
       await service.updateProfile(user.stellarAddress, updateData);
 
-      expect(emitSpy).toHaveBeenCalledWith(
-        'user.updated',
-        expect.any(Object),
-      );
+      expect(emitSpy).toHaveBeenCalledWith('user.updated', expect.any(Object));
     });
 
     it('should throw NotFoundException when user not found', async () => {
@@ -486,14 +489,12 @@ describe('UsersService', () => {
         createMockUser({ id: '3', xp: 600, level: 6 }),
       ];
 
-      jest
-        .spyOn(usersRepository, 'createQueryBuilder')
-        .mockReturnValue({
-          orderBy: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([users, 3]),
-        } as any);
+      jest.spyOn(usersRepository, 'createQueryBuilder').mockReturnValue({
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([users, 3]),
+      } as any);
 
       const result = await service.getLeaderboard(1, 20);
 
@@ -503,14 +504,12 @@ describe('UsersService', () => {
     });
 
     it('should handle empty leaderboard', async () => {
-      jest
-        .spyOn(usersRepository, 'createQueryBuilder')
-        .mockReturnValue({
-          orderBy: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
-        } as any);
+      jest.spyOn(usersRepository, 'createQueryBuilder').mockReturnValue({
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      } as any);
 
       const result = await service.getLeaderboard(1, 20);
 
@@ -533,7 +532,9 @@ describe('UsersService', () => {
         totalEarned: '50',
       });
 
-      expect(cacheManager.del).toHaveBeenCalledWith(`user_stats_${user.stellarAddress}`);
+      expect(cacheManager.del).toHaveBeenCalledWith(
+        `user_stats_${user.stellarAddress}`,
+      );
       expect(usersRepository.save).toHaveBeenCalled();
     });
   });

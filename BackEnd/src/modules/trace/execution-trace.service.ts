@@ -154,9 +154,7 @@ export class ExecutionTraceService {
   }
 
   async findByQuestId(questId: string): Promise<ExecutionTrace[]> {
-    return Array.from(this.store.values()).filter(
-      (t) => t.questId === questId,
-    );
+    return Array.from(this.store.values()).filter((t) => t.questId === questId);
   }
 
   async findByTxHash(txHash: string): Promise<ExecutionTrace | null> {

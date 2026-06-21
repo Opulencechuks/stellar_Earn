@@ -102,13 +102,14 @@ describe('Full Application Integration', () => {
 
   describe('Complete User Journey', () => {
     it('should handle full user journey from registration to payout', async () => {
-      const stellarAddress = 'GBFULLJOURNEY123456789012345678901234567890123456789012345678901234567890';
+      const stellarAddress =
+        'GBFULLJOURNEY123456789012345678901234567890123456789012345678901234567890';
 
       // Step 1: User Registration & Authentication
       const authResult = await authService.verifySignatureAndLogin(
         stellarAddress,
         'journey_signature',
-        'journey_message'
+        'journey_message',
       );
 
       expect(authResult.accessToken).toBeDefined();
@@ -151,7 +152,7 @@ describe('Full Application Integration', () => {
       // Step 5: Approve Submission
       const approvedSubmission = await submissionsService.updateStatus(
         submission.id,
-        'approved'
+        'approved',
       );
 
       expect(approvedSubmission.status).toBe('approved');
@@ -168,7 +169,10 @@ describe('Full Application Integration', () => {
       expect(payout.amount).toBe(quest.rewardAmount);
 
       // Step 7: Complete Payout Process
-      const completedPayout = await payoutsService.updateStatus(payout.id, 'approved');
+      const completedPayout = await payoutsService.updateStatus(
+        payout.id,
+        'approved',
+      );
 
       expect(completedPayout.status).toBe('approved');
 
@@ -197,7 +201,7 @@ describe('Full Application Integration', () => {
         const authResult = await authService.verifySignatureAndLogin(
           `GBMULTI${i}123456789012345678901234567890123456789012345678901234567890`,
           `sig${i}`,
-          `msg${i}`
+          `msg${i}`,
         );
         users.push(authResult.user);
       }
@@ -265,13 +269,14 @@ describe('Full Application Integration', () => {
 
   describe('Cross-Module Event Propagation', () => {
     it('should propagate events across all integrated modules', async () => {
-      const stellarAddress = 'GBEVENTS123456789012345678901234567890123456789012345678901234567890';
+      const stellarAddress =
+        'GBEVENTS123456789012345678901234567890123456789012345678901234567890';
 
       // Authenticate user
       const authResult = await authService.verifySignatureAndLogin(
         stellarAddress,
         'events_sig',
-        'events_msg'
+        'events_msg',
       );
 
       const user = authResult.user;
@@ -320,7 +325,8 @@ describe('Full Application Integration', () => {
     it('should maintain referential integrity across all modules', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBCONSISTENCY123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBCONSISTENCY123456789012345678901234567890123456789012345678901234567890',
       });
 
       // Create quest

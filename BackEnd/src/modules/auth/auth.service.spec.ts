@@ -16,7 +16,9 @@ import {
 
 // Mock the signature utilities
 jest.mock('./utils/signature', () => ({
-  generateChallengeMessage: jest.fn((address, timestamp) => `Challenge for ${address} at ${timestamp}`),
+  generateChallengeMessage: jest.fn(
+    (address, timestamp) => `Challenge for ${address} at ${timestamp}`,
+  ),
   verifyStellarSignature: jest.fn(),
   isChallengeExpired: jest.fn((timestamp, minutes) => false),
   extractTimestampFromChallenge: jest.fn((challenge) => Date.now()),
@@ -95,7 +97,9 @@ describe('AuthService', () => {
       const expectedMinExpiry = beforeCall + 5 * 60 * 1000;
       const expectedMaxExpiry = afterCall + 5 * 60 * 1000;
 
-      expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(expectedMinExpiry);
+      expect(result.expiresAt.getTime()).toBeGreaterThanOrEqual(
+        expectedMinExpiry,
+      );
       expect(result.expiresAt.getTime()).toBeLessThanOrEqual(expectedMaxExpiry);
     });
   });
@@ -130,7 +134,9 @@ describe('AuthService', () => {
     it('should save refresh token to repository', async () => {
       const subject = 'test-user-id';
       const stellarAddress = generateRandomStellarAddress();
-      const saveSpy = jest.spyOn(refreshTokenRepository, 'save').mockResolvedValue({});
+      const saveSpy = jest
+        .spyOn(refreshTokenRepository, 'save')
+        .mockResolvedValue({});
 
       await service.generateTokens(subject, subject, stellarAddress, Role.USER);
 
@@ -172,7 +178,9 @@ describe('AuthService', () => {
         .spyOn(refreshTokenRepository, 'findOne')
         .mockResolvedValue(refreshToken);
       jest.spyOn(usersService, 'findById').mockResolvedValue(user);
-      jest.spyOn(refreshTokenRepository, 'save').mockResolvedValue(refreshToken);
+      jest
+        .spyOn(refreshTokenRepository, 'save')
+        .mockResolvedValue(refreshToken);
       jest.spyOn(refreshTokenRepository, 'create').mockReturnValue({
         token: 'new-refresh-token',
       });
@@ -199,9 +207,9 @@ describe('AuthService', () => {
         .spyOn(refreshTokenRepository, 'findOne')
         .mockResolvedValue(refreshToken);
 
-      await expect(
-        service.refreshTokens(refreshToken.token),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(refreshToken.token)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException for expired token', async () => {
@@ -214,9 +222,9 @@ describe('AuthService', () => {
         .spyOn(refreshTokenRepository, 'findOne')
         .mockResolvedValue(refreshToken);
 
-      await expect(
-        service.refreshTokens(refreshToken.token),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens(refreshToken.token)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should revoke old refresh token when issuing new one', async () => {
@@ -251,9 +259,7 @@ describe('AuthService', () => {
       const tokenId = 'token-id-123';
       const token = createMockRefreshToken({ id: tokenId, userId });
 
-      jest
-        .spyOn(refreshTokenRepository, 'findOne')
-        .mockResolvedValue(token);
+      jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue(token);
       jest.spyOn(refreshTokenRepository, 'save').mockResolvedValue(token);
 
       await service.revokeToken(userId, tokenId);
@@ -269,9 +275,9 @@ describe('AuthService', () => {
     it('should throw NotFoundException when token not found', async () => {
       jest.spyOn(refreshTokenRepository, 'findOne').mockResolvedValue(null);
 
-      await expect(
-        service.revokeToken('user-id', 'token-id'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.revokeToken('user-id', 'token-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should revoke all user tokens when tokenId not provided', async () => {

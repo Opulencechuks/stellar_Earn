@@ -3,7 +3,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { MultiSigPayoutService } from '../stellar/multisig/services/multisig-payout.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MultiSigTransaction, MultiSigTransactionStatus } from '../stellar/multisig/entities/multisig-transaction.entity';
+import {
+  MultiSigTransaction,
+  MultiSigTransactionStatus,
+} from '../stellar/multisig/entities/multisig-transaction.entity';
 
 @Injectable()
 export class MultiSigWebhookHandler {
@@ -45,7 +48,9 @@ export class MultiSigWebhookHandler {
           const payloadData = JSON.parse(transaction.transactionPayload);
           if (payloadData.payoutId) {
             // Process approved payout
-            await this.multiSigPayoutService.processApprovedPayout(payload.transactionId);
+            await this.multiSigPayoutService.processApprovedPayout(
+              payload.transactionId,
+            );
             this.logger.log('Payout processed after multi-sig approval', {
               transactionId: payload.transactionId,
               payoutId: payloadData.payoutId,

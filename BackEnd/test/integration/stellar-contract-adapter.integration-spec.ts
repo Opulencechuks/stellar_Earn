@@ -56,7 +56,8 @@ describe('Stellar contract adapter integration', () => {
               if (key === 'CONTRACT_ID') return contractId;
               if (key === 'QUEST_STATE_RECONCILIATION_ENABLED') return 'true';
               if (key === 'QUEST_STATE_RECONCILIATION_BATCH_SIZE') return '10';
-              if (key === 'SOROBAN_RPC_URL') return 'https://soroban-testnet.stellar.org';
+              if (key === 'SOROBAN_RPC_URL')
+                return 'https://soroban-testnet.stellar.org';
               if (key === 'STELLAR_NETWORK') return 'TESTNET';
               if (key === 'SOROBAN_SIM_SOURCE_ACCOUNT')
                 return 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';

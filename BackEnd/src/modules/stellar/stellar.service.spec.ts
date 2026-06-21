@@ -99,7 +99,7 @@ describe('StellarService (Security)', () => {
       expect.objectContaining({
         'stellar.contract.id': 'unknown',
         'stellar.contract.function': 'unknown',
-      })
+      }),
     );
 
     // Verify trace attributes
@@ -109,13 +109,13 @@ describe('StellarService (Security)', () => {
     // Verify metrics calls
     expect(metricsService.incrementCounter).toHaveBeenCalledWith(
       'stellar_contract_invocations_total',
-      { contract_id: 'unknown', function: 'unknown' }
+      { contract_id: 'unknown', function: 'unknown' },
     );
-    
+
     expect(metricsService.observeHistogram).toHaveBeenCalledWith(
       'stellar_contract_invocation_duration_ms',
       expect.any(Number),
-      { contract_id: 'unknown', function: 'unknown', status: 'success' }
+      { contract_id: 'unknown', function: 'unknown', status: 'success' },
     );
   });
 
@@ -140,17 +140,25 @@ describe('StellarService (Security)', () => {
       .spyOn((service as any).horizonServer, 'submitTransaction')
       .mockRejectedValue(new Error('Horizon rate limit exceeded'));
 
-    await expect(service.signAndSubmit(tx)).rejects.toThrow('Transaction signing security failure');
+    await expect(service.signAndSubmit(tx)).rejects.toThrow(
+      'Transaction signing security failure',
+    );
 
     // Verify trace attributes marked as error
     expect(mockSpan.status).toBe('error');
-    expect(mockSpan.attributes['error.message']).toBe('Horizon rate limit exceeded');
+    expect(mockSpan.attributes['error.message']).toBe(
+      'Horizon rate limit exceeded',
+    );
     expect(mockSpan.attributes['error.type']).toBe('Error');
 
     // Verify metrics tracked failure
     expect(metricsService.incrementCounter).toHaveBeenCalledWith(
       'stellar_contract_invocation_failures_total',
-      { contract_id: 'unknown', function: 'unknown', error_type: 'submission_error' }
+      {
+        contract_id: 'unknown',
+        function: 'unknown',
+        error_type: 'submission_error',
+      },
     );
   });
 });

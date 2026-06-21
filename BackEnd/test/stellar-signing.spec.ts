@@ -1,7 +1,12 @@
 ﻿import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { StellarService } from '#src/modules/stellar/stellar.service';
-import { Account, Asset, Operation, TransactionBuilder } from '@stellar/stellar-sdk';
+import {
+  Account,
+  Asset,
+  Operation,
+  TransactionBuilder,
+} from '@stellar/stellar-sdk';
 
 describe('Transaction Signing Security', () => {
   let service: StellarService;
@@ -14,7 +19,8 @@ describe('Transaction Signing Security', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key: string) => {
-              if (key === 'STELLAR_SECRET_KEY') return 'SCTV6K62W7X6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6'; // Fake test key
+              if (key === 'STELLAR_SECRET_KEY')
+                return 'SCTV6K62W7X6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6'; // Fake test key
               if (key === 'STELLAR_NETWORK') return 'TESTNET';
               return 'https://horizon-testnet.stellar.org';
             }),
@@ -32,15 +38,21 @@ describe('Transaction Signing Security', () => {
       fee: '100',
       networkPassphrase: service.getNetworkPassphrase(),
     })
-      .addOperation(Operation.payment({
-        destination: 'GD...dest',
-        asset: Asset.native(),
-        amount: '10',
-      }))
+      .addOperation(
+        Operation.payment({
+          destination: 'GD...dest',
+          asset: Asset.native(),
+          amount: '10',
+        }),
+      )
       .setTimeout(30)
       .build();
 
-    tx.sign(Keypair.fromSecret('SCTV6K62W7X6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6'));
+    tx.sign(
+      Keypair.fromSecret(
+        'SCTV6K62W7X6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6G6Y5YF7S6O4L2M6',
+      ),
+    );
     expect(tx.signatures.length).toBe(1);
   });
 });

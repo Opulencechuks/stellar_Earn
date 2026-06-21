@@ -64,7 +64,9 @@ describe('DatabasePoolMonitorService', () => {
       ],
     }).compile();
 
-    service = module.get<DatabasePoolMonitorService>(DatabasePoolMonitorService);
+    service = module.get<DatabasePoolMonitorService>(
+      DatabasePoolMonitorService,
+    );
     dataSource = mockDataSource;
     metricsService = mockMetricsService;
     loggerService = mockLoggerService;
@@ -161,7 +163,10 @@ describe('DatabasePoolMonitorService', () => {
     it('should record acquisition time and update histogram', () => {
       service.recordAcquisitionTime(100);
 
-      expect(metricsService.observeHistogram).toHaveBeenCalledWith('db_pool_acquire_duration_ms', 100);
+      expect(metricsService.observeHistogram).toHaveBeenCalledWith(
+        'db_pool_acquire_duration_ms',
+        100,
+      );
     });
 
     it('should keep only last 100 samples', () => {
@@ -178,7 +183,9 @@ describe('DatabasePoolMonitorService', () => {
     it('should record timeout and increment counter', () => {
       service.recordTimeout();
 
-      expect(metricsService.incrementCounter).toHaveBeenCalledWith('db_pool_timeout_total');
+      expect(metricsService.incrementCounter).toHaveBeenCalledWith(
+        'db_pool_timeout_total',
+      );
       expect(loggerService.warn).toHaveBeenCalledWith(
         'Database connection timeout detected',
         'DatabasePoolMonitorService',
@@ -191,7 +198,9 @@ describe('DatabasePoolMonitorService', () => {
     it('should record failed connection and increment counter', () => {
       service.recordFailedConnection();
 
-      expect(metricsService.incrementCounter).toHaveBeenCalledWith('db_pool_failed_connections_total');
+      expect(metricsService.incrementCounter).toHaveBeenCalledWith(
+        'db_pool_failed_connections_total',
+      );
       expect(loggerService.error).toHaveBeenCalledWith(
         'Database connection failed',
         'DatabasePoolMonitorService',
@@ -204,7 +213,9 @@ describe('DatabasePoolMonitorService', () => {
     it('should record retry and increment counter', () => {
       service.recordRetry();
 
-      expect(metricsService.incrementCounter).toHaveBeenCalledWith('db_pool_retry_total');
+      expect(metricsService.incrementCounter).toHaveBeenCalledWith(
+        'db_pool_retry_total',
+      );
     });
   });
 
@@ -291,7 +302,9 @@ describe('DatabasePoolMonitorService', () => {
       service['collectPoolMetrics']();
       service['checkExhaustionConditions']();
 
-      expect(metricsService.incrementCounter).toHaveBeenCalledWith('db_pool_exhaustion_total');
+      expect(metricsService.incrementCounter).toHaveBeenCalledWith(
+        'db_pool_exhaustion_total',
+      );
       expect(loggerService.error).toHaveBeenCalledWith(
         'Database pool exhaustion detected',
         'DatabasePoolMonitorService',

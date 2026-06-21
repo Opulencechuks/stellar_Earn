@@ -152,9 +152,9 @@ describe('UserExperienceListener atomicity across service boundaries', () => {
       new Error('db transaction failed'),
     );
 
-    await expect(listener.handleSubmissionApproved(approvedEvent)).rejects.toThrow(
-      'db transaction failed',
-    );
+    await expect(
+      listener.handleSubmissionApproved(approvedEvent),
+    ).rejects.toThrow('db transaction failed');
 
     expect(eventEmitter.emit).not.toHaveBeenCalled();
   });
@@ -192,7 +192,9 @@ describe('UserExperienceListener atomicity across service boundaries', () => {
       return true;
     });
 
-    await expect(listener.handleSubmissionApproved(approvedEvent)).resolves.toBeUndefined();
+    await expect(
+      listener.handleSubmissionApproved(approvedEvent),
+    ).resolves.toBeUndefined();
     expect(eventRepo.save).toHaveBeenCalledTimes(2);
   });
 });

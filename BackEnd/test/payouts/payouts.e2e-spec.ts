@@ -373,8 +373,9 @@ describe('Payouts (e2e)', () => {
       });
 
       it('should return 401 for unauthorized requests', async () => {
-        const response = await request(app.getHttpServer())
-          .get(`/payouts/fraud-risk/${testPayoutId}`);
+        const response = await request(app.getHttpServer()).get(
+          `/payouts/fraud-risk/${testPayoutId}`,
+        );
 
         expect(response.status).toBe(401);
       });
@@ -411,8 +412,9 @@ describe('Payouts (e2e)', () => {
       });
 
       it('should return 401 for unauthorized requests', async () => {
-        const response = await request(app.getHttpServer())
-          .get('/payouts/fraud-risk/batch');
+        const response = await request(app.getHttpServer()).get(
+          '/payouts/fraud-risk/batch',
+        );
 
         expect(response.status).toBe(401);
       });
@@ -441,8 +443,9 @@ describe('Payouts (e2e)', () => {
       });
 
       it('should return 401 for unauthorized requests', async () => {
-        const response = await request(app.getHttpServer())
-          .get('/payouts/fraud-risk/statistics');
+        const response = await request(app.getHttpServer()).get(
+          '/payouts/fraud-risk/statistics',
+        );
 
         expect(response.status).toBe(401);
       });

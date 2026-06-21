@@ -7,7 +7,11 @@ import { WebhookProcessor } from '../processors/webhook.processor';
 import { AnalyticsProcessor } from '../processors/analytics.processor';
 import { QuestProcessor } from '../processors/quest.processor';
 import { JobLogService } from '../services/job-log.service';
-import { PayoutProcessPayload, EmailSendPayload, JobStatus } from '../job.types';
+import {
+  PayoutProcessPayload,
+  EmailSendPayload,
+  JobStatus,
+} from '../job.types';
 import { Job } from 'bullmq';
 
 describe('Job Processors', () => {
@@ -67,7 +71,8 @@ describe('Job Processors', () => {
           payoutId: 'payout-123',
           organizationId: 'org-456',
           amount: 100,
-          recipientAddress: 'GDZST3XVCDTUJ76ZAV2HA72KYXM4ZCT5JBHNYX7UHZASDEFDZDCXACHL',
+          recipientAddress:
+            'GDZST3XVCDTUJ76ZAV2HA72KYXM4ZCT5JBHNYX7UHZASDEFDZDCXACHL',
         } as PayoutProcessPayload,
         updateProgress: jest.fn(),
         timestamp: Date.now(),
@@ -88,7 +93,8 @@ describe('Job Processors', () => {
           payoutId: 'payout-123',
           organizationId: 'org-456',
           amount: -100,
-          recipientAddress: 'GDZST3XVCDTUJ76ZAV2HA72KYXM4ZCT5JBHNYX7UHZASDEFDZDCXACHL',
+          recipientAddress:
+            'GDZST3XVCDTUJ76ZAV2HA72KYXM4ZCT5JBHNYX7UHZASDEFDZDCXACHL',
         } as PayoutProcessPayload,
         updateProgress: jest.fn(),
         timestamp: Date.now(),
@@ -367,7 +373,9 @@ describe('Job Processors', () => {
 
       // Result can be success or failure with rejection reason
       expect(result.data).toHaveProperty('verificationStatus');
-      expect(['APPROVED', 'REJECTED']).toContain(result.data.verificationStatus);
+      expect(['APPROVED', 'REJECTED']).toContain(
+        result.data.verificationStatus,
+      );
     });
   });
 

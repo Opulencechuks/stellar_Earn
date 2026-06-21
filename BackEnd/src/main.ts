@@ -1,5 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType, BadRequestException } from '@nestjs/common';
+import {
+  ValidationPipe,
+  VersioningType,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   API_VERSION_CONFIG,
@@ -26,7 +30,10 @@ import { getCorsConfig } from './config/cors.config';
 import { createLoggerConfig } from './config/logger.config';
 import { AppLoggerService } from './common/logger/logger.service';
 import { initSentry } from './config/sentry.config';
-import { initOpenTelemetry, shutdownOpenTelemetry } from './config/opentelemetry.config';
+import {
+  initOpenTelemetry,
+  shutdownOpenTelemetry,
+} from './config/opentelemetry.config';
 
 // Initialise Sentry before anything else so it can capture bootstrap errors
 initSentry();
@@ -67,10 +74,10 @@ async function bootstrap() {
     logger.log('Application instance created', 'Bootstrap');
 
     const configService = app.get(ConfigService);
-    
+
     // Initialize OpenTelemetry for distributed tracing
     initOpenTelemetry(configService);
-    
+
     const appSecurityConfig = getApplicationSecurityConfig(configService);
 
     app.use(
@@ -124,7 +131,9 @@ async function bootstrap() {
       type: VersioningType.CUSTOM,
       defaultVersion: API_VERSION_CONFIG.defaultVersion,
       extractor: (request) => {
-        return extractApiVersion(request as any) || API_VERSION_CONFIG.defaultVersion;
+        return (
+          extractApiVersion(request as any) || API_VERSION_CONFIG.defaultVersion
+        );
       },
     });
 
@@ -161,16 +170,19 @@ async function bootstrap() {
 
     // Graceful shutdown handler
     const gracefulShutdown = async (signal: string) => {
-      logger.log(`Received ${signal}. Starting graceful shutdown...`, 'Bootstrap');
-      
+      logger.log(
+        `Received ${signal}. Starting graceful shutdown...`,
+        'Bootstrap',
+      );
+
       try {
         // Stop accepting new requests
         await app.close();
         logger.log('HTTP server closed', 'Bootstrap');
-        
+
         // Shutdown OpenTelemetry
         await shutdownOpenTelemetry();
-        
+
         logger.log('Graceful shutdown completed', 'Bootstrap');
         process.exit(0);
       } catch (error) {

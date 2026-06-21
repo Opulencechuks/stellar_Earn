@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostmortemController } from './postmortem.controller';
 import { PostmortemService } from './postmortem.service';
-import { CreatePostmortemDto, UpdatePostmortemDto, PostmortemResponseDto } from './postmortem.dto';
+import {
+  CreatePostmortemDto,
+  UpdatePostmortemDto,
+  PostmortemResponseDto,
+} from './postmortem.dto';
 import { IncidentSeverity, PostmortemStatus } from './postmortem.entity';
 
 describe('PostmortemController', () => {
@@ -96,7 +100,9 @@ describe('PostmortemController', () => {
 
   describe('getByIncidentId', () => {
     it('should return postmortem by incident ID', async () => {
-      jest.spyOn(service, 'getByIncidentId').mockResolvedValue(mockPostmortemResponse);
+      jest
+        .spyOn(service, 'getByIncidentId')
+        .mockResolvedValue(mockPostmortemResponse);
 
       const result = await controller.getByIncidentId('2024-01-15-1430');
 
@@ -161,23 +167,33 @@ describe('PostmortemController', () => {
         priority: 'P1' as const,
       };
 
-      jest.spyOn(service, 'addActionItem').mockResolvedValue(mockPostmortemResponse);
+      jest
+        .spyOn(service, 'addActionItem')
+        .mockResolvedValue(mockPostmortemResponse);
 
       const result = await controller.addActionItem('test-id-123', actionItem);
 
       expect(result).toEqual(mockPostmortemResponse);
-      expect(service.addActionItem).toHaveBeenCalledWith('test-id-123', actionItem);
+      expect(service.addActionItem).toHaveBeenCalledWith(
+        'test-id-123',
+        actionItem,
+      );
     });
   });
 
   describe('completeActionItem', () => {
     it('should mark action item as complete', async () => {
-      jest.spyOn(service, 'completeActionItem').mockResolvedValue(mockPostmortemResponse);
+      jest
+        .spyOn(service, 'completeActionItem')
+        .mockResolvedValue(mockPostmortemResponse);
 
       const result = await controller.completeActionItem('test-id-123', 'A1');
 
       expect(result).toEqual(mockPostmortemResponse);
-      expect(service.completeActionItem).toHaveBeenCalledWith('test-id-123', 'A1');
+      expect(service.completeActionItem).toHaveBeenCalledWith(
+        'test-id-123',
+        'A1',
+      );
     });
   });
 
@@ -208,7 +224,9 @@ describe('PostmortemController', () => {
     it('should return related incidents', async () => {
       const mockRelated = [mockPostmortemResponse];
 
-      jest.spyOn(service, 'findRelatedIncidents').mockResolvedValue(mockRelated);
+      jest
+        .spyOn(service, 'findRelatedIncidents')
+        .mockResolvedValue(mockRelated);
 
       const result = await controller.findRelated('test-id-123');
 

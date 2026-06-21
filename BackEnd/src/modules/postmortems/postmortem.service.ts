@@ -1,7 +1,15 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, ILike } from 'typeorm';
-import { PostmortemEntity, IncidentSeverity, PostmortemStatus } from './postmortem.entity';
+import {
+  PostmortemEntity,
+  IncidentSeverity,
+  PostmortemStatus,
+} from './postmortem.entity';
 import {
   CreatePostmortemDto,
   UpdatePostmortemDto,
@@ -143,7 +151,10 @@ export class PostmortemService {
   /**
    * Update postmortem
    */
-  async update(id: string, dto: UpdatePostmortemDto): Promise<PostmortemResponseDto> {
+  async update(
+    id: string,
+    dto: UpdatePostmortemDto,
+  ): Promise<PostmortemResponseDto> {
     const postmortem = await this.postmortemRepository.findOne({
       where: { id },
     });
@@ -166,9 +177,12 @@ export class PostmortemService {
     if (dto.title) postmortem.title = dto.title;
     if (dto.summary) postmortem.summary = dto.summary;
     if (dto.rootCause) postmortem.rootCause = dto.rootCause;
-    if (dto.whatWentWell) postmortem.whatWentWell = JSON.stringify(dto.whatWentWell);
-    if (dto.whatWentWrong) postmortem.whatWentWrong = JSON.stringify(dto.whatWentWrong);
-    if (dto.lessonsLearned) postmortem.lessonsLearned = JSON.stringify(dto.lessonsLearned);
+    if (dto.whatWentWell)
+      postmortem.whatWentWell = JSON.stringify(dto.whatWentWell);
+    if (dto.whatWentWrong)
+      postmortem.whatWentWrong = JSON.stringify(dto.whatWentWrong);
+    if (dto.lessonsLearned)
+      postmortem.lessonsLearned = JSON.stringify(dto.lessonsLearned);
     if (dto.actionItems) {
       postmortem.actionItems = JSON.stringify(dto.actionItems);
       postmortem.totalActionItems = dto.actionItems.length;
@@ -226,7 +240,10 @@ export class PostmortemService {
   /**
    * Mark action item as complete
    */
-  async completeActionItem(id: string, actionItemId: string): Promise<PostmortemResponseDto> {
+  async completeActionItem(
+    id: string,
+    actionItemId: string,
+  ): Promise<PostmortemResponseDto> {
     const postmortem = await this.postmortemRepository.findOne({
       where: { id },
     });
@@ -302,9 +319,16 @@ export class PostmortemService {
     }
 
     // Calculate action item completion rate
-    const totalItems = postmortems.reduce((sum, p) => sum + p.totalActionItems, 0);
-    const completedItems = postmortems.reduce((sum, p) => sum + p.completedActionItems, 0);
-    stats.actionItemCompletionRate = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+    const totalItems = postmortems.reduce(
+      (sum, p) => sum + p.totalActionItems,
+      0,
+    );
+    const completedItems = postmortems.reduce(
+      (sum, p) => sum + p.completedActionItems,
+      0,
+    );
+    stats.actionItemCompletionRate =
+      totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
     // Find most common root causes
     const rootCauseCounts: Record<string, number> = {};
@@ -348,7 +372,9 @@ export class PostmortemService {
           p.id !== id &&
           p.rootCause &&
           postmortem.rootCause &&
-          p.rootCause.toLowerCase().includes(postmortem.rootCause.toLowerCase()),
+          p.rootCause
+            .toLowerCase()
+            .includes(postmortem.rootCause.toLowerCase()),
       )
       .slice(0, 5);
 
@@ -398,7 +424,17 @@ export class PostmortemService {
     const h = parseInt(hour, 10);
     const min = parseInt(minute, 10);
 
-    return y >= 2000 && m >= 1 && m <= 12 && d >= 1 && d <= 31 && h >= 0 && h <= 23 && min >= 0 && min <= 59;
+    return (
+      y >= 2000 &&
+      m >= 1 &&
+      m <= 12 &&
+      d >= 1 &&
+      d <= 31 &&
+      h >= 0 &&
+      h <= 23 &&
+      min >= 0 &&
+      min <= 59
+    );
   }
 
   /**

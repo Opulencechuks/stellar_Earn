@@ -50,7 +50,8 @@ export function createMockUser(overrides?: Partial<User>): User {
   user.id = 'test-user-id';
   user.email = 'test@example.com';
   user.username = 'testuser';
-  user.stellarAddress = 'GBUQWP3BOUZX34ULNQG23RQ6F4YUSXHTQA5XPJMWRFT5GEVQA3I5UU4K';
+  user.stellarAddress =
+    'GBUQWP3BOUZX34ULNQG23RQ6F4YUSXHTQA5XPJMWRFT5GEVQA3I5UU4K';
   user.role = Role.USER;
   user.level = 1;
   user.xp = 0;
@@ -211,7 +212,9 @@ export async function expectErrorWithMessage(
 ): Promise<void> {
   try {
     await fn();
-    throw new Error(`Expected error with message "${errorMessage}" to be thrown`);
+    throw new Error(
+      `Expected error with message "${errorMessage}" to be thrown`,
+    );
   } catch (error: any) {
     if (!error.message.includes(errorMessage)) {
       throw new Error(
@@ -250,7 +253,8 @@ export function generateRandomStellarAddress(): string {
  * @returns Random string
  */
 export function generateRandomString(length: number = 10): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));

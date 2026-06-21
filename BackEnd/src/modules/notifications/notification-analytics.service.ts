@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationLog, DeliveryStatus } from './entities/notification-log.entity';
+import {
+  NotificationLog,
+  DeliveryStatus,
+} from './entities/notification-log.entity';
 import { ChannelType } from './channels/notification-channel.interface';
 
 @Injectable()
@@ -13,10 +16,11 @@ export class NotificationAnalyticsService {
 
   async getDeliveryStats(userId?: string) {
     const query = this.logsRepository.createQueryBuilder('log');
-    
+
     if (userId) {
-      query.innerJoin('log.notification', 'notification')
-           .where('notification.userId = :userId', { userId });
+      query
+        .innerJoin('log.notification', 'notification')
+        .where('notification.userId = :userId', { userId });
     }
 
     const stats = await query
@@ -32,8 +36,8 @@ export class NotificationAnalyticsService {
 
   async getChannelSuccessRate(channel: ChannelType) {
     const total = await this.logsRepository.count({ where: { channel } });
-    const success = await this.logsRepository.count({ 
-      where: { channel, status: DeliveryStatus.SENT } 
+    const success = await this.logsRepository.count({
+      where: { channel, status: DeliveryStatus.SENT },
     });
 
     return total > 0 ? (success / total) * 100 : 0;

@@ -35,8 +35,13 @@ export class PostmortemController {
     description: 'Postmortem created successfully',
     type: PostmortemResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Invalid input or postmortem already exists' })
-  async create(@Body() dto: CreatePostmortemDto): Promise<PostmortemResponseDto> {
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input or postmortem already exists',
+  })
+  async create(
+    @Body() dto: CreatePostmortemDto,
+  ): Promise<PostmortemResponseDto> {
     return this.postmortemService.create(dto);
   }
 
@@ -146,7 +151,10 @@ export class PostmortemController {
     description: 'Action item marked complete',
     type: PostmortemResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Postmortem or action item not found' })
+  @ApiResponse({
+    status: 404,
+    description: 'Postmortem or action item not found',
+  })
   async completeActionItem(
     @Param('id') id: string,
     @Param('actionItemId') actionItemId: string,

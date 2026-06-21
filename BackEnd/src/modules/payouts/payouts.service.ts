@@ -154,7 +154,8 @@ export class PayoutsService {
     } catch (error) {
       if (payout.transactionHash && payout.stellarLedger) {
         payout.status = PayoutStatus.PROCESSING;
-        payout.failureReason = error.message || 'Settlement confirmation failed';
+        payout.failureReason =
+          error.message || 'Settlement confirmation failed';
         payout.nextRetryAt = new Date(Date.now() + this.settlementRetryDelayMs);
         await this.payoutRepository.save(payout);
         this.logger.warn(
@@ -259,9 +260,7 @@ export class PayoutsService {
   private async getCurrentStellarLedger(): Promise<number> {
     const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
     const mockLedger = Number(
-      this.configService.get<number | string>(
-        'STELLAR_MOCK_CURRENT_LEDGER',
-      ),
+      this.configService.get<number | string>('STELLAR_MOCK_CURRENT_LEDGER'),
     );
 
     if (Number.isInteger(mockLedger) && mockLedger > 0) {
@@ -285,9 +284,7 @@ export class PayoutsService {
     }
 
     const payload = await response.json();
-    const latestLedger = Number(
-      payload?._embedded?.records?.[0]?.sequence,
-    );
+    const latestLedger = Number(payload?._embedded?.records?.[0]?.sequence);
 
     if (!Number.isInteger(latestLedger) || latestLedger <= 0) {
       throw new ServiceUnavailableException(
@@ -488,7 +485,7 @@ export class PayoutsService {
     );
 
     // Cast is safe — PayoutHistoryResponseDto extends PaginatedResponseDto<PayoutResponseDto>
-    return result as PayoutHistoryResponseDto;
+    return result;
   }
 
   // ─── Stats ─────────────────────────────────────────────────────────────────

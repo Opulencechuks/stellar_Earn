@@ -18,7 +18,8 @@ describe('UserService reputation atomicity', () => {
     user.level = overrides.level ?? 2;
     user.username = 'tester';
     user.email = 'tester@example.com';
-    user.stellarAddress = 'GTESTADDRESS1234567890TESTADDRESS1234567890TESTADDRESS12';
+    user.stellarAddress =
+      'GTESTADDRESS1234567890TESTADDRESS1234567890TESTADDRESS12';
     user.calculateLevel = function calculateLevel() {
       return Math.max(1, Math.floor(Math.sqrt(this.xp / 100)));
     };
@@ -40,7 +41,8 @@ describe('UserService reputation atomicity', () => {
       manager: {
         transaction: jest.fn(async (cb: any) =>
           cb({
-            getRepository: (entity: any) => (entity === User ? txRepo : eventTxRepo),
+            getRepository: (entity: any) =>
+              entity === User ? txRepo : eventTxRepo,
           }),
         ),
       },
@@ -84,9 +86,9 @@ describe('UserService reputation atomicity', () => {
   it('fails transaction when user does not exist', async () => {
     txRepo.findOne.mockResolvedValue(null);
 
-    await expect(service.applyReputationDeltaAtomic('missing-user', 100)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      service.applyReputationDeltaAtomic('missing-user', 100),
+    ).rejects.toThrow(NotFoundException);
     expect(txRepo.save).not.toHaveBeenCalled();
   });
 
@@ -115,7 +117,11 @@ describe('UserService reputation atomicity', () => {
         await repo.save(
           repo.create({
             eventName: 'user.reputation-changed',
-            payload: { userId: update.userId, oldXp: update.oldXp, newXp: update.newXp },
+            payload: {
+              userId: update.userId,
+              oldXp: update.oldXp,
+              newXp: update.newXp,
+            },
           }),
         );
       },
@@ -135,7 +141,9 @@ describe('UserService reputation atomicity', () => {
       service.applyReputationDeltaAtomic(user.id, 100, {
         persist: async (manager) => {
           const repo = manager.getRepository(EventStore);
-          await repo.save(repo.create({ eventName: 'user.reputation-changed', payload: {} }));
+          await repo.save(
+            repo.create({ eventName: 'user.reputation-changed', payload: {} }),
+          );
         },
       }),
     ).rejects.toThrow('event store down');

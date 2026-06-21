@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CronJob } from 'cron';
@@ -140,12 +145,18 @@ export class JobSchedulerService implements OnModuleInit, OnModuleDestroy {
     }
 
     // Stop existing schedule if updating cron expression
-    if (updates.cronExpression && updates.cronExpression !== schedule.cronExpression) {
+    if (
+      updates.cronExpression &&
+      updates.cronExpression !== schedule.cronExpression
+    ) {
       this.stopSchedule(scheduleId);
     }
 
     Object.assign(schedule, updates);
-    const nextRunTime = this.getNextRunTime(schedule.cronExpression, schedule.timezone);
+    const nextRunTime = this.getNextRunTime(
+      schedule.cronExpression,
+      schedule.timezone,
+    );
     if (nextRunTime) {
       schedule.nextRunAt = nextRunTime;
     }
@@ -194,7 +205,10 @@ export class JobSchedulerService implements OnModuleInit, OnModuleDestroy {
 
     schedule.isActive = true;
     (schedule as any).disabledAt = null;
-    const nextRunTime = this.getNextRunTime(schedule.cronExpression, schedule.timezone);
+    const nextRunTime = this.getNextRunTime(
+      schedule.cronExpression,
+      schedule.timezone,
+    );
     if (nextRunTime) {
       schedule.nextRunAt = nextRunTime;
     }
@@ -279,13 +293,18 @@ export class JobSchedulerService implements OnModuleInit, OnModuleDestroy {
       totalSchedules: schedules.length,
       activeSchedules: schedules.filter((s) => s.isActive).length,
       disabledSchedules: schedules.filter((s) => !s.isActive).length,
-      totalSuccessfulRuns: schedules.reduce((sum, s) => sum + s.successCount, 0),
+      totalSuccessfulRuns: schedules.reduce(
+        (sum, s) => sum + s.successCount,
+        0,
+      ),
       totalFailedRuns: schedules.reduce((sum, s) => sum + s.failureCount, 0),
       successRate:
         schedules.length > 0
           ? (schedules.reduce((sum, s) => sum + s.successCount, 0) /
-              (schedules.reduce((sum, s) => sum + s.successCount + s.failureCount, 0) ||
-                1)) *
+              (schedules.reduce(
+                (sum, s) => sum + s.successCount + s.failureCount,
+                0,
+              ) || 1)) *
             100
           : 0,
       nextScheduledJobs: schedules
@@ -387,21 +406,30 @@ export class JobSchedulerService implements OnModuleInit, OnModuleDestroy {
   /**
    * Validate cron expression
    */
-private isValidCronExpression(expression: string): boolean {
+  private isValidCronExpression(expression: string): boolean {
     try {
       new CronJob(expression, () => {});
       return true;
     } catch {
       return false;
     }
-}
+  }
 
   /**
    * Get next run time for a cron expression
    */
-  private getNextRunTime(cronExpression: string, timezone?: string): Date | null {
+  private getNextRunTime(
+    cronExpression: string,
+    timezone?: string,
+  ): Date | null {
     try {
-      const job = new CronJob(cronExpression, () => {}, null, false, timezone || 'UTC');
+      const job = new CronJob(
+        cronExpression,
+        () => {},
+        null,
+        false,
+        timezone || 'UTC',
+      );
       return job.nextDate().toJSDate();
     } catch {
       return null;

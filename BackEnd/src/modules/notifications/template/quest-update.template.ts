@@ -13,8 +13,9 @@ const assertNonEmptyString = (value: unknown, field: string): void => {
   }
 };
 
-
-export const renderQuestUpdateTemplate: NotificationTemplateRenderFn<QuestUpdateTemplateData> = (
+export const renderQuestUpdateTemplate: NotificationTemplateRenderFn<
+  QuestUpdateTemplateData
+> = (
   engine: EmailTemplateEngine,
   data: QuestUpdateTemplateData,
 ): NotificationTemplateRenderResult => {
@@ -33,7 +34,7 @@ export const renderQuestUpdateTemplate: NotificationTemplateRenderFn<QuestUpdate
 
   // Quest updates are mapped onto the general notification email.
   // The email engine expects: { username, title, message, ctaText?, ctaUrl? }.
-  const rendered = engine.render(questUpdateEmailTemplate as EmailTemplate, {
+  const rendered = engine.render(questUpdateEmailTemplate, {
     username: data.username,
     title,
     message,
@@ -41,4 +42,3 @@ export const renderQuestUpdateTemplate: NotificationTemplateRenderFn<QuestUpdate
 
   return rendered;
 };
-

@@ -33,7 +33,7 @@ export class SecurityExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const responseObj = exception.getResponse();
-      
+
       if (typeof responseObj === 'string') {
         message = responseObj;
       } else if (responseObj && typeof responseObj === 'object') {
@@ -47,7 +47,7 @@ export class SecurityExceptionFilter implements ExceptionFilter {
         exception.stack,
         `IP: ${clientIP} | URL: ${request.method} ${request.url}`,
       );
-      
+
       // Don't expose internal error details to client
       message = 'An unexpected error occurred';
     }
@@ -105,8 +105,8 @@ export class SecurityExceptionFilter implements ExceptionFilter {
       [HttpStatus.TOO_MANY_REQUESTS]: 'Too many requests',
     } as const;
 
-    if (securityErrorMessages[status as keyof typeof securityErrorMessages]) {
-      return securityErrorMessages[status as keyof typeof securityErrorMessages];
+    if (securityErrorMessages[status]) {
+      return securityErrorMessages[status];
     }
 
     // For other errors, keep the original message but sanitize if needed

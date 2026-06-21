@@ -18,7 +18,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto.stellarAddress);
-    
+
     return res.json(result);
   }
 }

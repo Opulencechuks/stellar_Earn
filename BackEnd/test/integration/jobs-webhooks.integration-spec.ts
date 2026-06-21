@@ -69,7 +69,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should create job and trigger webhook on completion', async () => {
       // Create a test user
       const user = await usersService.create({
-        stellarAddress: 'GBJOB123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBJOB123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Job Test User',
       });
 
@@ -121,7 +122,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should handle job failures and trigger failure webhooks', async () => {
       // Create user and webhook
       const user = await usersService.create({
-        stellarAddress: 'GBFAIL123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBFAIL123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Failure Test User',
       });
 
@@ -169,7 +171,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should handle scheduled jobs with webhook retry logic', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBSCHED123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBSCHED123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Scheduled Job User',
       });
 
@@ -205,16 +208,23 @@ describe('Jobs-Webhooks Integration', () => {
       expect(scheduledJob.scheduledFor).toBeDefined();
 
       // Simulate job execution
-      const runningJob = await jobsService.updateStatus(scheduledJob.id, 'running');
+      const runningJob = await jobsService.updateStatus(
+        scheduledJob.id,
+        'running',
+      );
       expect(runningJob.status).toBe('running');
 
       // Complete the job
-      const completedJob = await jobsService.updateStatus(runningJob.id, 'completed', {
-        result: {
-          reportUrl: 'https://storage.example.com/reports/weekly_001.pdf',
-          generatedAt: new Date().toISOString(),
+      const completedJob = await jobsService.updateStatus(
+        runningJob.id,
+        'completed',
+        {
+          result: {
+            reportUrl: 'https://storage.example.com/reports/weekly_001.pdf',
+            generatedAt: new Date().toISOString(),
+          },
         },
-      });
+      );
 
       expect(completedJob.status).toBe('completed');
     });
@@ -222,7 +232,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should handle webhook delivery failures with retry mechanism', async () => {
       // Create user and webhook
       const user = await usersService.create({
-        stellarAddress: 'GBRETRY123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBRETRY123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Retry Test User',
       });
 
@@ -267,7 +278,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should handle bulk job creation and batched webhook notifications', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBBULK123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBBULK123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Bulk Job User',
       });
 
@@ -302,9 +314,13 @@ describe('Jobs-Webhooks Integration', () => {
       // Complete jobs in batches
       const completedJobs = [];
       for (let i = 0; i < jobs.length; i++) {
-        const completedJob = await jobsService.updateStatus(jobs[i].id, 'completed', {
-          result: { itemId: i + 1, processed: true },
-        });
+        const completedJob = await jobsService.updateStatus(
+          jobs[i].id,
+          'completed',
+          {
+            result: { itemId: i + 1, processed: true },
+          },
+        );
         completedJobs.push(completedJob);
       }
 
@@ -324,7 +340,8 @@ describe('Jobs-Webhooks Integration', () => {
     it('should maintain job-webhook relationship integrity', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBRELATION123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBRELATION123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Relationship Test User',
       });
 
@@ -358,9 +375,13 @@ describe('Jobs-Webhooks Integration', () => {
 
       // Complete jobs and verify relationships
       for (let i = 0; i < jobs.length; i++) {
-        const completedJob = await jobsService.updateStatus(jobs[i].id, 'completed', {
-          result: { webhookTriggered: webhooks[i].id, success: true },
-        });
+        const completedJob = await jobsService.updateStatus(
+          jobs[i].id,
+          'completed',
+          {
+            result: { webhookTriggered: webhooks[i].id, success: true },
+          },
+        );
 
         expect(completedJob.status).toBe('completed');
         expect(completedJob.result.webhookTriggered).toBe(webhooks[i].id);

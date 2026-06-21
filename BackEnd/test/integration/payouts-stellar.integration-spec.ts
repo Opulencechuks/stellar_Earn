@@ -66,7 +66,8 @@ describe('Payouts-Stellar Integration', () => {
     it('should create payout and integrate with stellar service', async () => {
       // Create a test user
       const user = await usersService.create({
-        stellarAddress: 'GBREWARD123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBREWARD123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Reward Tester',
       });
 
@@ -90,7 +91,10 @@ describe('Payouts-Stellar Integration', () => {
 
       // Process payout (would integrate with Stellar service)
       // In a real scenario, this would call stellarService.sendPayment()
-      const processedPayout = await payoutsService.updateStatus(payout.id, 'processing');
+      const processedPayout = await payoutsService.updateStatus(
+        payout.id,
+        'processing',
+      );
 
       expect(processedPayout.status).toBe('processing');
     });
@@ -98,7 +102,8 @@ describe('Payouts-Stellar Integration', () => {
     it('should handle payout approval and stellar transaction integration', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBAPPROVE123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBAPPROVE123456789012345678901234567890123456789012345678901234567890',
       });
 
       // Create payout
@@ -111,7 +116,10 @@ describe('Payouts-Stellar Integration', () => {
       });
 
       // Approve payout (this would trigger Stellar transaction in real implementation)
-      const approvedPayout = await payoutsService.updateStatus(payout.id, 'approved');
+      const approvedPayout = await payoutsService.updateStatus(
+        payout.id,
+        'approved',
+      );
 
       expect(approvedPayout.status).toBe('approved');
 
@@ -124,7 +132,8 @@ describe('Payouts-Stellar Integration', () => {
     it('should integrate user balance updates with payout processing', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBBALANCE123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBBALANCE123456789012345678901234567890123456789012345678901234567890',
       });
 
       // Get initial user stats
@@ -176,11 +185,13 @@ describe('Payouts-Stellar Integration', () => {
     it('should handle multiple payouts and aggregate transactions', async () => {
       // Create multiple users
       const user1 = await usersService.create({
-        stellarAddress: 'GBMULTI1123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBMULTI1123456789012345678901234567890123456789012345678901234567890',
       });
 
       const user2 = await usersService.create({
-        stellarAddress: 'GBMULTI2123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBMULTI2123456789012345678901234567890123456789012345678901234567890',
       });
 
       // Create multiple payouts
@@ -217,7 +228,8 @@ describe('Payouts-Stellar Integration', () => {
     it('should handle stellar transaction failures gracefully', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBERROR123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBERROR123456789012345678901234567890123456789012345678901234567890',
       });
 
       // Create payout
@@ -230,7 +242,10 @@ describe('Payouts-Stellar Integration', () => {
       });
 
       // Simulate processing failure
-      const failedPayout = await payoutsService.updateStatus(payout.id, 'failed');
+      const failedPayout = await payoutsService.updateStatus(
+        payout.id,
+        'failed',
+      );
 
       expect(failedPayout.status).toBe('failed');
 

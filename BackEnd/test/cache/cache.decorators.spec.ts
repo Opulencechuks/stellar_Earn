@@ -2,7 +2,12 @@
 import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { CacheableInterceptor, CacheInvalidateInterceptor, Cacheable, CacheInvalidate } from '#src/common/decorators/cache.decorator';
+import {
+  CacheableInterceptor,
+  CacheInvalidateInterceptor,
+  Cacheable,
+  CacheInvalidate,
+} from '#src/common/decorators/cache.decorator';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Controller('test')
@@ -31,11 +36,9 @@ describe('Cache Decorators', () => {
       del: jest.fn(),
       reset: jest.fn(),
       store: {
-        getKeys: jest.fn().mockResolvedValue([
-          'test_pattern_1',
-          'test_pattern_2',
-          'other_key',
-        ]),
+        getKeys: jest
+          .fn()
+          .mockResolvedValue(['test_pattern_1', 'test_pattern_2', 'other_key']),
       },
     };
 
@@ -63,7 +66,9 @@ describe('Cache Decorators', () => {
   describe('Cacheable Decorator', () => {
     it('should cache first request and return cached value on second', async () => {
       const expectedValue = { id: '123', timestamp: 1234567890 };
-      cacheManager.get.mockResolvedValueOnce(undefined).mockResolvedValueOnce(expectedValue);
+      cacheManager.get
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(expectedValue);
 
       // First request - should miss cache
       const firstResponse = await request(app.getHttpServer())
@@ -96,9 +101,7 @@ describe('Cache Decorators', () => {
 
   describe('CacheInvalidate Decorator', () => {
     it('should invalidate cache matching pattern', async () => {
-      await request(app.getHttpServer())
-        .get('/test/invalidate')
-        .expect(200);
+      await request(app.getHttpServer()).get('/test/invalidate').expect(200);
 
       expect(cacheManager.store.getKeys).toHaveBeenCalled();
       expect(cacheManager.del).toHaveBeenCalledWith('test_pattern_1');
@@ -106,9 +109,7 @@ describe('Cache Decorators', () => {
     });
 
     it('should not invalidate non-matching keys', async () => {
-      await request(app.getHttpServer())
-        .get('/test/invalidate')
-        .expect(200);
+      await request(app.getHttpServer()).get('/test/invalidate').expect(200);
 
       expect(cacheManager.del).not.toHaveBeenCalledWith('other_key');
     });

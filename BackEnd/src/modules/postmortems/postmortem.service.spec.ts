@@ -3,7 +3,11 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostmortemService } from './postmortem.service';
-import { PostmortemEntity, IncidentSeverity, PostmortemStatus } from './postmortem.entity';
+import {
+  PostmortemEntity,
+  IncidentSeverity,
+  PostmortemStatus,
+} from './postmortem.entity';
 import { CreatePostmortemDto, UpdatePostmortemDto } from './postmortem.dto';
 
 describe('PostmortemService', () => {
@@ -201,10 +205,9 @@ describe('PostmortemService', () => {
 
   describe('list', () => {
     it('should list postmortems with default pagination', async () => {
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([
-        [mockPostmortemEntity],
-        1,
-      ]);
+      jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[mockPostmortemEntity], 1]);
 
       const result = await service.list({});
 
@@ -216,10 +219,9 @@ describe('PostmortemService', () => {
     });
 
     it('should filter by severity', async () => {
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([
-        [mockPostmortemEntity],
-        1,
-      ]);
+      jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[mockPostmortemEntity], 1]);
 
       const result = await service.list({ severity: IncidentSeverity.HIGH });
 
@@ -227,10 +229,9 @@ describe('PostmortemService', () => {
     });
 
     it('should filter by status', async () => {
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([
-        [mockPostmortemEntity],
-        1,
-      ]);
+      jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[mockPostmortemEntity], 1]);
 
       const result = await service.list({ status: PostmortemStatus.DRAFT });
 
@@ -307,9 +308,14 @@ describe('PostmortemService', () => {
 
   describe('publish', () => {
     it('should publish approved postmortem', async () => {
-      const approved = { ...mockPostmortemEntity, status: PostmortemStatus.APPROVED };
+      const approved = {
+        ...mockPostmortemEntity,
+        status: PostmortemStatus.APPROVED,
+      };
       jest.spyOn(repository, 'findOne').mockResolvedValue(approved);
-      jest.spyOn(repository, 'save').mockResolvedValue({ ...approved, isPublished: true });
+      jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue({ ...approved, isPublished: true });
 
       const result = await service.publish('test-id-123');
 

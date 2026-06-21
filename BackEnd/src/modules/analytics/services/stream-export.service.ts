@@ -193,10 +193,7 @@ export class StreamExportService {
   ): AsyncGenerator<T, void, unknown> {
     let offset = 0;
     while (true) {
-      const chunk = await queryBuilder
-        .skip(offset)
-        .take(chunkSize)
-        .getMany();
+      const chunk = await queryBuilder.skip(offset).take(chunkSize).getMany();
 
       if (chunk.length === 0) {
         break;

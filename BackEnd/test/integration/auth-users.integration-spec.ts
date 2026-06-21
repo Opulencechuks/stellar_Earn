@@ -55,7 +55,8 @@ describe('Auth-Users Integration', () => {
 
   describe('Complete Authentication Flow', () => {
     it('should create user and generate tokens through auth flow', async () => {
-      const stellarAddress = 'GBTEST123456789012345678901234567890123456789012345678901234567890';
+      const stellarAddress =
+        'GBTEST123456789012345678901234567890123456789012345678901234567890';
       const signature = 'test_signature';
       const message = 'test_message';
 
@@ -66,7 +67,7 @@ describe('Auth-Users Integration', () => {
       const authResult = await authService.verifySignatureAndLogin(
         stellarAddress,
         signature,
-        message
+        message,
       );
 
       // Verify user was created
@@ -81,7 +82,8 @@ describe('Auth-Users Integration', () => {
     });
 
     it('should handle user stats updates through auth interactions', async () => {
-      const stellarAddress = 'GBTEST123456789012345678901234567890123456789012345678901234567891';
+      const stellarAddress =
+        'GBTEST123456789012345678901234567890123456789012345678901234567891';
 
       // First auth
       await authService.verifySignatureAndLogin(stellarAddress, 'sig1', 'msg1');
@@ -96,13 +98,14 @@ describe('Auth-Users Integration', () => {
     });
 
     it('should integrate user profile updates with auth tokens', async () => {
-      const stellarAddress = 'GBTEST123456789012345678901234567890123456789012345678901234567892';
+      const stellarAddress =
+        'GBTEST123456789012345678901234567890123456789012345678901234567892';
 
       // Authenticate user
       const authResult = await authService.verifySignatureAndLogin(
         stellarAddress,
         'signature',
-        'message'
+        'message',
       );
 
       // Update user profile using the authenticated context
@@ -119,7 +122,8 @@ describe('Auth-Users Integration', () => {
 
   describe('Cross-Module Data Consistency', () => {
     it('should maintain data consistency between auth and users modules', async () => {
-      const stellarAddress = 'GBTEST123456789012345678901234567890123456789012345678901234567893';
+      const stellarAddress =
+        'GBTEST123456789012345678901234567890123456789012345678901234567893';
 
       // Create user through auth flow
       await authService.verifySignatureAndLogin(stellarAddress, 'sig', 'msg');

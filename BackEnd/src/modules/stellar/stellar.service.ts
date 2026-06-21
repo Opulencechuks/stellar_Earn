@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as StellarSdk from 'stellar-sdk';
 import { TracingService } from '../../common/tracing/tracing.service';
@@ -21,12 +26,17 @@ export class StellarService implements OnModuleInit {
   }
 
   private initializeStellarComponents() {
-    const horizonUrl = this.configService.get<string>('STELLAR_HORIZON_URL') || 'https://horizon-testnet.stellar.org';
+    const horizonUrl =
+      this.configService.get<string>('STELLAR_HORIZON_URL') ||
+      'https://horizon-testnet.stellar.org';
     const network = this.configService.get<string>('STELLAR_NETWORK');
 
     this.horizonServer = new StellarSdk.Horizon.Server(horizonUrl);
-    this.networkPassphrase = network === 'PUBLIC' ? StellarSdk.Networks.PUBLIC : StellarSdk.Networks.TESTNET;
-    
+    this.networkPassphrase =
+      network === 'PUBLIC'
+        ? StellarSdk.Networks.PUBLIC
+        : StellarSdk.Networks.TESTNET;
+
     this.logger.log(`Stellar Service initialized on ${network}`);
   }
 
@@ -34,7 +44,9 @@ export class StellarService implements OnModuleInit {
     const secretKey = this.configService.get<string>('STELLAR_ADMIN_SECRET');
 
     if (!secretKey) {
-      throw new InternalServerErrorException('Stellar admin secret is not configured in .env');
+      throw new InternalServerErrorException(
+        'Stellar admin secret is not configured in .env',
+      );
     }
 
     let contractId = 'unknown';
@@ -42,7 +54,10 @@ export class StellarService implements OnModuleInit {
 
     if (transaction.operations && transaction.operations.length > 0) {
       const op = transaction.operations[0] as any;
-      if (op.type === 'invokeContractFunction' || op.type === 'invoke_contract_function') {
+      if (
+        op.type === 'invokeContractFunction' ||
+        op.type === 'invoke_contract_function'
+      ) {
         contractId = op.contract || 'unknown';
         functionName = op.function || 'unknown';
       }
@@ -65,15 +80,20 @@ export class StellarService implements OnModuleInit {
         try {
           const signer = StellarSdk.Keypair.fromSecret(secretKey);
           transaction.sign(signer);
-          
-          const result = await this.horizonServer.submitTransaction(transaction);
-          
+
+          const result =
+            await this.horizonServer.submitTransaction(transaction);
+
           const duration = Date.now() - startTime;
-          this.metrics.observeHistogram('stellar_contract_invocation_duration_ms', duration, {
-            contract_id: contractId,
-            function: functionName,
-            status: 'success',
-          });
+          this.metrics.observeHistogram(
+            'stellar_contract_invocation_duration_ms',
+            duration,
+            {
+              contract_id: contractId,
+              function: functionName,
+              status: 'success',
+            },
+          );
 
           span.attributes['stellar.tx.ledger'] = result.ledger;
           span.attributes['stellar.tx.status'] = 'success';
@@ -81,34 +101,48 @@ export class StellarService implements OnModuleInit {
           return result;
         } catch (error) {
           const duration = Date.now() - startTime;
-          this.metrics.observeHistogram('stellar_contract_invocation_duration_ms', duration, {
-            contract_id: contractId,
-            function: functionName,
-            status: 'failure',
-          });
+          this.metrics.observeHistogram(
+            'stellar_contract_invocation_duration_ms',
+            duration,
+            {
+              contract_id: contractId,
+              function: functionName,
+              status: 'failure',
+            },
+          );
 
-          const errorMsg = error instanceof Error ? error.message : String(error);
-          this.logger.error(`Signing or submission failed: ${errorMsg}`, error instanceof Error ? error.stack : undefined);
-          
+          const errorMsg =
+            error instanceof Error ? error.message : String(error);
+          this.logger.error(
+            `Signing or submission failed: ${errorMsg}`,
+            error instanceof Error ? error.stack : undefined,
+          );
+
           // Record failure in tracing span
           span.status = 'error';
           span.attributes['error.message'] = errorMsg;
-          span.attributes['error.type'] = error instanceof Error ? error.name : 'SigningOrSubmissionError';
+          span.attributes['error.type'] =
+            error instanceof Error ? error.name : 'SigningOrSubmissionError';
 
           // Record failure in metrics
-          this.metrics.incrementCounter('stellar_contract_invocation_failures_total', {
-            contract_id: contractId,
-            function: functionName,
-            error_type: 'submission_error',
-          });
+          this.metrics.incrementCounter(
+            'stellar_contract_invocation_failures_total',
+            {
+              contract_id: contractId,
+              function: functionName,
+              error_type: 'submission_error',
+            },
+          );
 
-          throw new InternalServerErrorException(`Transaction signing security failure: ${errorMsg}`);
+          throw new InternalServerErrorException(
+            `Transaction signing security failure: ${errorMsg}`,
+          );
         }
       },
       {
         'stellar.contract.id': contractId,
         'stellar.contract.function': functionName,
-      }
+      },
     );
   }
 

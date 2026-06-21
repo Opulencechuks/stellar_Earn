@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { JobsService } from './jobs.service';
 
@@ -33,7 +39,10 @@ export class JobsController {
   }
 
   @Get('metrics')
-  @ApiOperation({ summary: 'Export queue metrics (active, delayed, failed, completed, waiting) for all queues' })
+  @ApiOperation({
+    summary:
+      'Export queue metrics (active, delayed, failed, completed, waiting) for all queues',
+  })
   @ApiResponse({ status: 200, description: 'Queue metrics for all queues' })
   async getQueueMetrics() {
     return this.jobsService.getQueueMetrics();

@@ -83,12 +83,19 @@ export class EmailProcessor {
         `Processing email digest job ${job.id}: org=${organizationId}, type=${digestType}, recipients=${recipientEmails.length}`,
       );
 
-      if (!organizationId || !digestType || !recipientEmails || recipientEmails.length === 0) {
+      if (
+        !organizationId ||
+        !digestType ||
+        !recipientEmails ||
+        recipientEmails.length === 0
+      ) {
         throw new Error('Missing required digest fields');
       }
 
       // Validate all email addresses
-      const invalidEmails = recipientEmails.filter((email) => !this.isValidEmail(email));
+      const invalidEmails = recipientEmails.filter(
+        (email) => !this.isValidEmail(email),
+      );
       if (invalidEmails.length > 0) {
         throw new Error(`Invalid email addresses: ${invalidEmails.join(', ')}`);
       }
@@ -124,7 +131,9 @@ export class EmailProcessor {
         duration: Date.now() - job.timestamp,
       };
 
-      this.logger.log(`Email digest sent to ${recipientEmails.length} recipients`);
+      this.logger.log(
+        `Email digest sent to ${recipientEmails.length} recipients`,
+      );
       return result;
     } catch (error) {
       this.logger.error(

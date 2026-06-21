@@ -26,7 +26,10 @@ export class SocialLinksDto {
   @IsString()
   discord?: string;
 
-  @ApiPropertyOptional({ description: 'Website URL', example: 'https://alice.dev' })
+  @ApiPropertyOptional({
+    description: 'Website URL',
+    example: 'https://alice.dev',
+  })
   @IsOptional()
   @IsUrl()
   website?: string;
@@ -43,12 +46,18 @@ export class UpdateProfileDto {
   @MaxLength(500)
   bio?: string;
 
-  @ApiPropertyOptional({ description: 'Avatar image URL', example: 'https://example.com/avatar.png' })
+  @ApiPropertyOptional({
+    description: 'Avatar image URL',
+    example: 'https://example.com/avatar.png',
+  })
   @IsOptional()
   @IsUrl()
   avatarUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Profile privacy level', enum: PrivacyLevel })
+  @ApiPropertyOptional({
+    description: 'Profile privacy level',
+    enum: PrivacyLevel,
+  })
   @IsOptional()
   @IsEnum(PrivacyLevel)
   privacyLevel?: PrivacyLevel;

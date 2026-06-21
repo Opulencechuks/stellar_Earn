@@ -21,7 +21,7 @@ export class TransactionUtils {
     private readonly rpcServer: rpc.Server,
     private readonly horizonServer: Horizon.Server,
     private readonly config: TransactionConfig,
-  ) { }
+  ) {}
 
   async buildAndSubmit(
     signer: Keypair,

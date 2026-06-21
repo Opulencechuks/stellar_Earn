@@ -13,7 +13,6 @@ const assertNonEmptyString = (value: unknown, field: string): void => {
   }
 };
 
-
 export const renderSystemAnnouncementTemplate: NotificationTemplateRenderFn<
   SystemAnnouncementTemplateData
 > = (
@@ -23,7 +22,7 @@ export const renderSystemAnnouncementTemplate: NotificationTemplateRenderFn<
   assertNonEmptyString(data.username, 'username');
   assertNonEmptyString(data.message, 'message');
 
-  const rendered = engine.render(systemAnnouncementEmailTemplate as EmailTemplate, {
+  const rendered = engine.render(systemAnnouncementEmailTemplate, {
     username: data.username,
     title: data.title,
     message: data.message,
@@ -33,4 +32,3 @@ export const renderSystemAnnouncementTemplate: NotificationTemplateRenderFn<
 
   return rendered;
 };
-

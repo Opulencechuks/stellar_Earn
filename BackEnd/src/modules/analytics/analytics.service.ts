@@ -6,7 +6,9 @@ export class AnalyticsService {
 
   constructor() {
     // Simulate heavy initialization cost (e.g., establishing external socket connections)
-    this.logger.log('AnalyticsService: Performing heavy boot initialization...');
+    this.logger.log(
+      'AnalyticsService: Performing heavy boot initialization...',
+    );
   }
 
   public trackEvent(name: string, metadata: Record<string, any>): void {
@@ -19,7 +21,7 @@ export class AnalyticsService {
 const lazyAnalytics = new LazyInitializer(() => new AnalyticsService());
 
 /**
- * Exported helper to access the AnalyticsService. 
+ * Exported helper to access the AnalyticsService.
  * The service is instantiated ONLY upon the first call to this function.
  */
 export const getAnalyticsService = (): AnalyticsService => {

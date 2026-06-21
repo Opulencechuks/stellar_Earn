@@ -17,7 +17,7 @@ export class RetryService {
         lastError = error instanceof Error ? error : new Error(String(error));
         if (attempt < maxAttempts) {
           const backoff = delayMs || Math.pow(2, attempt) * 1000;
-          await new Promise(resolve => setTimeout(resolve, backoff));
+          await new Promise((resolve) => setTimeout(resolve, backoff));
         }
       }
     }

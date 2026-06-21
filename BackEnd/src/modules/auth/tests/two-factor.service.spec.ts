@@ -14,7 +14,8 @@ import { TwoFactorAuth } from '../entities/two-factor.entity';
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STELLAR_ADDRESS = 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
+const STELLAR_ADDRESS =
+  'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
 const MOCK_SECRET = 'JBSWY3DPEHPK3PXP';
 const VALID_CODE = '123456';
 
@@ -28,7 +29,7 @@ function makeMockRecord(overrides: Partial<TwoFactorAuth> = {}): TwoFactorAuth {
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  } as TwoFactorAuth;
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -100,7 +101,10 @@ describe('TwoFactorService', () => {
       expect(result.otpauthUrl).toContain('otpauth://');
       expect(result.qrCodeDataUrl).toContain('data:image/png');
       expect(mockRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ stellarAddress: STELLAR_ADDRESS, enabled: false }),
+        expect.objectContaining({
+          stellarAddress: STELLAR_ADDRESS,
+          enabled: false,
+        }),
       );
       expect(mockRepo.save).toHaveBeenCalled();
     });

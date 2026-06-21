@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsEnum, IsString } from 'class-validator';
-import { CursorPaginationDto, PaginatedResponseDto } from '../../../common/dto/pagination.dto';
+import {
+  CursorPaginationDto,
+  PaginatedResponseDto,
+} from '../../../common/dto/pagination.dto';
 
 export enum PayoutStatus {
   PENDING = 'pending',
@@ -89,8 +92,10 @@ export class PayoutHistoryResponseDto extends PaginatedResponseDto<PayoutRespons
 export class PayoutStatsDto {
   @ApiProperty({ description: 'Total number of payouts' }) total: number;
   @ApiProperty({ description: 'Total amount paid out' }) totalAmount: number;
-  @ApiProperty({ description: 'Payouts currently being processed' }) pendingCount: number;
-  @ApiProperty({ description: 'Successfully completed payouts' }) completedCount: number;
+  @ApiProperty({ description: 'Payouts currently being processed' })
+  pendingCount: number;
+  @ApiProperty({ description: 'Successfully completed payouts' })
+  completedCount: number;
   @ApiProperty({ description: 'Payouts that failed' }) failedCount: number;
   @ApiProperty({ description: 'Asset denomination (e.g. XLM)' }) asset: string;
 }

@@ -21,7 +21,12 @@ describe('Logger Service', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [LoggerModule.forRoot({ enableInterceptor: false, enableErrorFilter: false })],
+      imports: [
+        LoggerModule.forRoot({
+          enableInterceptor: false,
+          enableErrorFilter: false,
+        }),
+      ],
     }).compile();
 
     loggerService = module.get<AppLoggerService>(AppLoggerService);
@@ -65,7 +70,10 @@ describe('Logger Service', () => {
 
     it('should log HTTP messages', () => {
       expect(() => {
-        loggerService.http('Test HTTP message', { method: 'GET', path: '/test' });
+        loggerService.http('Test HTTP message', {
+          method: 'GET',
+          path: '/test',
+        });
       }).not.toThrow();
     });
   });
@@ -459,7 +467,7 @@ describe('Logging Interceptor', () => {
 
   it('should log successful requests', (done) => {
     const { of } = require('rxjs');
-    
+
     const mockExecutionContext = {
       getType: () => 'http',
       switchToHttp: () => ({
@@ -481,8 +489,11 @@ describe('Logging Interceptor', () => {
       handle: () => of({ data: 'test' }),
     };
 
-    const result$ = interceptor.intercept(mockExecutionContext as any, mockCallHandler as any);
-    
+    const result$ = interceptor.intercept(
+      mockExecutionContext as any,
+      mockCallHandler as any,
+    );
+
     result$.subscribe({
       next: () => {
         expect(mockLogger.debug).toHaveBeenCalled();
@@ -548,7 +559,9 @@ describe('Error Logger Filter', () => {
     filter.catch(error, mockHost as any);
 
     expect(mockLogger.error).toHaveBeenCalled();
-    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(mockResponse.status).toHaveBeenCalledWith(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
     expect(mockResponse.json).toHaveBeenCalled();
   });
 
@@ -706,7 +719,15 @@ describe('Logger Middleware', () => {
 
 describe('Log Levels', () => {
   it('should support all standard log levels', () => {
-    const levels = ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'];
+    const levels = [
+      'error',
+      'warn',
+      'info',
+      'http',
+      'verbose',
+      'debug',
+      'silly',
+    ];
     levels.forEach((level) => {
       expect(typeof level).toBe('string');
     });
@@ -719,7 +740,12 @@ describe('Structured Logging Format', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [LoggerModule.forRoot({ enableInterceptor: false, enableErrorFilter: false })],
+      imports: [
+        LoggerModule.forRoot({
+          enableInterceptor: false,
+          enableErrorFilter: false,
+        }),
+      ],
     }).compile();
 
     loggerService = module.get<AppLoggerService>(AppLoggerService);

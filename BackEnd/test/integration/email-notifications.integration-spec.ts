@@ -43,7 +43,8 @@ describe('Email-Notifications Integration', () => {
     }).compile();
 
     emailService = module.get<EmailService>(EmailService);
-    notificationsService = module.get<NotificationsService>(NotificationsService);
+    notificationsService =
+      module.get<NotificationsService>(NotificationsService);
     usersService = module.get<UsersService>(UsersService);
   });
 
@@ -64,7 +65,8 @@ describe('Email-Notifications Integration', () => {
     it('should create notification and send corresponding email', async () => {
       // Create a test user
       const user = await usersService.create({
-        stellarAddress: 'GBEMAIL123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBEMAIL123456789012345678901234567890123456789012345678901234567890',
         email: 'test@example.com',
         displayName: 'Email Test User',
       });
@@ -74,7 +76,8 @@ describe('Email-Notifications Integration', () => {
         userId: user.id,
         type: 'quest_completed',
         title: 'Quest Completed!',
-        message: 'Congratulations! You have completed the "Introduction to Stellar" quest.',
+        message:
+          'Congratulations! You have completed the "Introduction to Stellar" quest.',
         data: { questId: 1, reward: 50 },
       });
 
@@ -86,7 +89,9 @@ describe('Email-Notifications Integration', () => {
 
       // In a real integration, this would trigger an email
       // For testing, we verify the notification exists and would trigger email
-      const foundNotification = await notificationsService.findById(notification.id);
+      const foundNotification = await notificationsService.findById(
+        notification.id,
+      );
       expect(foundNotification).toBeDefined();
       expect(foundNotification.userId).toBe(user.id);
     });
@@ -126,7 +131,9 @@ describe('Email-Notifications Integration', () => {
 
       // In production, this would batch emails to avoid spam filters
       // For testing, we verify the notifications exist
-      const allNotifications = await notificationsService.findByUserId(users[0].id);
+      const allNotifications = await notificationsService.findByUserId(
+        users[0].id,
+      );
       expect(allNotifications.length).toBeGreaterThan(0);
     });
   });
@@ -135,7 +142,8 @@ describe('Email-Notifications Integration', () => {
     it('should respect user email preferences for notifications', async () => {
       // Create user with email preferences
       const user = await usersService.create({
-        stellarAddress: 'GBPREFS123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBPREFS123456789012345678901234567890123456789012345678901234567890',
         email: 'prefs@example.com',
         displayName: 'Prefs User',
         emailPreferences: {
@@ -177,7 +185,8 @@ describe('Email-Notifications Integration', () => {
     it('should handle notification read status and email follow-ups', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBREAD123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBREAD123456789012345678901234567890123456789012345678901234567890',
         email: 'read@example.com',
         displayName: 'Read Status User',
       });
@@ -195,11 +204,15 @@ describe('Email-Notifications Integration', () => {
       expect(notification.read).toBe(false);
 
       // Mark as read (simulating user interaction)
-      const updatedNotification = await notificationsService.markAsRead(notification.id);
+      const updatedNotification = await notificationsService.markAsRead(
+        notification.id,
+      );
       expect(updatedNotification.read).toBe(true);
 
       // Verify read status persists
-      const foundNotification = await notificationsService.findById(notification.id);
+      const foundNotification = await notificationsService.findById(
+        notification.id,
+      );
       expect(foundNotification.read).toBe(true);
     });
   });
@@ -208,7 +221,8 @@ describe('Email-Notifications Integration', () => {
     it('should handle notification queue processing and email delivery status', async () => {
       // Create user
       const user = await usersService.create({
-        stellarAddress: 'GBQUEUE123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBQUEUE123456789012345678901234567890123456789012345678901234567890',
         email: 'queue@example.com',
         displayName: 'Queue User',
       });
@@ -236,7 +250,9 @@ describe('Email-Notifications Integration', () => {
 
       // In a real system, these would be processed by a queue system
       // For testing, we verify they exist and can be retrieved
-      const userNotifications = await notificationsService.findByUserId(user.id);
+      const userNotifications = await notificationsService.findByUserId(
+        user.id,
+      );
       expect(userNotifications.length).toBe(5);
 
       // Mark some as read (simulating processing)
@@ -254,7 +270,8 @@ describe('Email-Notifications Integration', () => {
     it('should handle email delivery failures gracefully', async () => {
       // Create user with invalid email (for testing failure handling)
       const user = await usersService.create({
-        stellarAddress: 'GBFAIL123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBFAIL123456789012345678901234567890123456789012345678901234567890',
         email: 'invalid-email-address', // Invalid email format
         displayName: 'Failure User',
       });
@@ -274,7 +291,9 @@ describe('Email-Notifications Integration', () => {
 
       // In a real system, email service would attempt delivery and handle failures
       // For testing, we verify the notification system is resilient
-      const foundNotification = await notificationsService.findById(notification.id);
+      const foundNotification = await notificationsService.findById(
+        notification.id,
+      );
       expect(foundNotification).toBeDefined();
     });
   });

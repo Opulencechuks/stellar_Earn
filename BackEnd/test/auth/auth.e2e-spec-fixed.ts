@@ -138,12 +138,11 @@ describe('Authentication E2E - Fixed (e2e)', () => {
 
     beforeEach(async () => {
       // Get a fresh challenge with retry
-      const response = await retryWithBackoff(
-        () =>
-          ctx
-            .request('post', '/auth/challenge')
-            .send({ stellarAddress })
-            .expect(200),
+      const response = await retryWithBackoff(() =>
+        ctx
+          .request('post', '/auth/challenge')
+          .send({ stellarAddress })
+          .expect(200),
       );
 
       challenge = response.body.challenge;
@@ -257,24 +256,22 @@ describe('Authentication E2E - Fixed (e2e)', () => {
 
     beforeEach(async () => {
       // Get valid tokens first
-      const challengeRes = await retryWithBackoff(
-        () =>
-          ctx
-            .request('post', '/auth/challenge')
-            .send({ stellarAddress })
-            .expect(200),
+      const challengeRes = await retryWithBackoff(() =>
+        ctx
+          .request('post', '/auth/challenge')
+          .send({ stellarAddress })
+          .expect(200),
       );
 
       const challenge = challengeRes.body.challenge;
       const messageBuffer = Buffer.from(challenge, 'utf8');
       const signature = testKeypair.sign(messageBuffer).toString('base64');
 
-      const loginRes = await retryWithBackoff(
-        () =>
-          ctx
-            .request('post', '/auth/login')
-            .send({ stellarAddress, signature, challenge })
-            .expect(200),
+      const loginRes = await retryWithBackoff(() =>
+        ctx
+          .request('post', '/auth/login')
+          .send({ stellarAddress, signature, challenge })
+          .expect(200),
       );
 
       validRefreshToken = loginRes.body.refreshToken;
@@ -309,12 +306,11 @@ describe('Authentication E2E - Fixed (e2e)', () => {
 
     it('should invalidate old refresh token after refresh', async () => {
       // Get new tokens
-      const refreshRes = await retryWithBackoff(
-        () =>
-          ctx
-            .request('post', '/auth/refresh')
-            .send({ refreshToken: validRefreshToken })
-            .expect(200),
+      const refreshRes = await retryWithBackoff(() =>
+        ctx
+          .request('post', '/auth/refresh')
+          .send({ refreshToken: validRefreshToken })
+          .expect(200),
       );
 
       const newRefreshToken = refreshRes.body.refreshToken;
@@ -346,7 +342,9 @@ describe('Authentication E2E - Fixed (e2e)', () => {
 
   describe('Concurrent Auth Operations', () => {
     it('should handle concurrent challenge requests', async () => {
-      const addresses = Array.from({ length: 5 }, () => Keypair.random().publicKey());
+      const addresses = Array.from({ length: 5 }, () =>
+        Keypair.random().publicKey(),
+      );
 
       const results = await Promise.all(
         addresses.map((addr) =>

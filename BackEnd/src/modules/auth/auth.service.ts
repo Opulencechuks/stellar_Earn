@@ -39,7 +39,7 @@ export class AuthService {
   async login(stellarAddress: string) {
     const payload = { stellarAddress, sub: 'login' };
     const accessToken = this.jwtService.sign(payload);
-    
+
     return {
       accessToken,
       expiresIn: 3600,

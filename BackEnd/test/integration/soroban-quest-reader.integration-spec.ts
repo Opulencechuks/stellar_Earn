@@ -16,7 +16,8 @@ describe('SorobanQuestReaderService (integration)', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn((key: string) => {
-              if (key === 'SOROBAN_RPC_URL') return 'https://soroban-testnet.stellar.org';
+              if (key === 'SOROBAN_RPC_URL')
+                return 'https://soroban-testnet.stellar.org';
               if (key === 'STELLAR_NETWORK') return 'TESTNET';
               if (key === 'SOROBAN_SIM_SOURCE_ACCOUNT')
                 return 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';

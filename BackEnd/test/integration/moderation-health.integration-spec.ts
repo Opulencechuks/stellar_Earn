@@ -66,13 +66,15 @@ describe('Moderation-Health Integration', () => {
     it('should moderate content and track moderation health metrics', async () => {
       // Create users
       const moderator = await usersService.create({
-        stellarAddress: 'GBMOD123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBMOD123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Content Moderator',
         role: 'moderator',
       });
 
       const contentCreator = await usersService.create({
-        stellarAddress: 'GBCREATOR123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBCREATOR123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Content Creator',
       });
 
@@ -103,7 +105,9 @@ describe('Moderation-Health Integration', () => {
 
       expect(moderatedItem.status).toBe('approved');
       expect(moderatedItem.moderatedBy).toBe(moderator.id);
-      expect(moderatedItem.moderationReason).toBe('Content meets community guidelines.');
+      expect(moderatedItem.moderationReason).toBe(
+        'Content meets community guidelines.',
+      );
 
       // Check system health after moderation activity
       // In a real system, this would check moderation queue health
@@ -114,7 +118,8 @@ describe('Moderation-Health Integration', () => {
     it('should handle moderation queue health and system load', async () => {
       // Create moderator
       const moderator = await usersService.create({
-        stellarAddress: 'GBQUEUE123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBQUEUE123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Queue Moderator',
         role: 'moderator',
       });
@@ -167,7 +172,8 @@ describe('Moderation-Health Integration', () => {
     it('should perform health checks on moderation service components', async () => {
       // Create test data to ensure services are functional
       const user = await usersService.create({
-        stellarAddress: 'GBHEALTH123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBHEALTH123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Health Check User',
       });
 
@@ -199,7 +205,8 @@ describe('Moderation-Health Integration', () => {
     it('should monitor moderation performance and response times', async () => {
       // Create user and multiple moderation items
       const user = await usersService.create({
-        stellarAddress: 'GBPERF123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBPERF123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Performance Test User',
       });
 
@@ -250,14 +257,16 @@ describe('Moderation-Health Integration', () => {
     it('should handle moderation escalation for high-priority content', async () => {
       // Create moderators with different levels
       const juniorModerator = await usersService.create({
-        stellarAddress: 'GBJUNIOR123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBJUNIOR123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Junior Moderator',
         role: 'moderator',
         moderationLevel: 'junior',
       });
 
       const seniorModerator = await usersService.create({
-        stellarAddress: 'GBSENIOR123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBSENIOR123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Senior Moderator',
         role: 'moderator',
         moderationLevel: 'senior',
@@ -265,7 +274,8 @@ describe('Moderation-Health Integration', () => {
 
       // Create high-priority content requiring escalation
       const highPriorityItem = await moderationService.createItem({
-        content: 'URGENT: Content requiring immediate senior moderator attention.',
+        content:
+          'URGENT: Content requiring immediate senior moderator attention.',
         contentType: 'urgent_submission',
         submittedBy: juniorModerator.id,
         priority: 'urgent',
@@ -304,7 +314,8 @@ describe('Moderation-Health Integration', () => {
     it('should monitor moderation system health and trigger alerts', async () => {
       // Create test scenario that would trigger health monitoring
       const moderator = await usersService.create({
-        stellarAddress: 'GBALERT123456789012345678901234567890123456789012345678901234567890',
+        stellarAddress:
+          'GBALERT123456789012345678901234567890123456789012345678901234567890',
         displayName: 'Alert Test Moderator',
         role: 'moderator',
       });

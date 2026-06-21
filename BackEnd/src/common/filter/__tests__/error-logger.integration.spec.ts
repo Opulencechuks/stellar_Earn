@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, BadRequestException, NotFoundException, HttpStatus } from '@nestjs/common';
+import {
+  INestApplication,
+  BadRequestException,
+  NotFoundException,
+  HttpStatus,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { AppLoggerService } from '../../logger/logger.service';
 import { ErrorLoggerFilter } from '../error-logger.filter';
@@ -33,12 +38,10 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
     it('Unhandled 500 error should not leak stack trace in response', async () => {
       // This test would be implemented with a real test module
       // that throws an unhandled error and verifies the HTTP response
-      
       // Pseudo-code:
       // const response = await request(app.getHttpServer())
       //   .get('/test/throw-error')
       //   .expect(500);
-      
       // const leakage = assertNoStackLeakage(response.body);
       // expect(leakage.isLeaking).toBe(false);
       // expect(response.body.stack).toBeUndefined();
@@ -48,7 +51,6 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
       // const response = await request(app.getHttpServer())
       //   .get('/non-existent-route')
       //   .expect(404);
-      
       // const contract = assertSafeErrorContract(response.body);
       // expect(contract.isValid).toBe(true);
       // expect(response.body.message).toBeDefined();
@@ -59,7 +61,6 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
       //   .post('/api/quests')
       //   .send({ invalid: 'data' })
       //   .expect(400);
-      
       // const leakage = assertNoStackLeakage(response.body);
       // expect(leakage.isLeaking).toBe(false);
     });
@@ -69,7 +70,6 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
       // const response = await request(app.getHttpServer())
       //   .get('/test/database-error')
       //   .expect(500);
-      
       // const leakage = assertNoStackLeakage(response.body);
       // expect(leakage.isLeaking).toBe(false);
       // expect(response.body.message).toBe('An unexpected error occurred');
@@ -81,7 +81,6 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
       // const response = await request(app.getHttpServer())
       //   .get('/test/throw-error')
       //   .expect(500);
-      
       // Object.keys(response.headers).forEach(header => {
       //   expect(header.toLowerCase()).not.toMatch(/stack|trace|error-detail/);
       // });
@@ -91,7 +90,6 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
       // const response = await request(app.getHttpServer())
       //   .get('/test/throw-error')
       //   .expect(500);
-      
       // expect(response.headers['x-correlation-id']).toBeDefined();
       // expect(response.body.requestId).toBeDefined();
     });
@@ -100,7 +98,7 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
   describe('SECURITY: Message Content Validation', () => {
     it('5xx error message should be generic in production', async () => {
       process.env.NODE_ENV = 'production';
-      
+
       // Simulating a 500 response body
       const mockErrorResponse = {
         statusCode: 500,
@@ -114,7 +112,7 @@ describe('ErrorLoggerFilter - Integration Tests (e2e)', () => {
         mockErrorResponse.message,
         mockErrorResponse.statusCode,
       );
-      
+
       expect(messageCheck.isGeneric).toBe(true);
     });
 

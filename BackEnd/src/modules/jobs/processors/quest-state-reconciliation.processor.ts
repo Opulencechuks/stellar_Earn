@@ -50,10 +50,13 @@ export class QuestStateReconciliationProcessor {
   async runReconciliation(): Promise<void> {
     const contractId = this.configService.get<string>('CONTRACT_ID') || '';
     const enabled =
-      (this.configService.get<string>('QUEST_STATE_RECONCILIATION_ENABLED') || 'true').toLowerCase() !==
-      'false';
+      (
+        this.configService.get<string>('QUEST_STATE_RECONCILIATION_ENABLED') ||
+        'true'
+      ).toLowerCase() !== 'false';
     const batchSize = Number(
-      this.configService.get<string>('QUEST_STATE_RECONCILIATION_BATCH_SIZE') || '100',
+      this.configService.get<string>('QUEST_STATE_RECONCILIATION_BATCH_SIZE') ||
+        '100',
     );
 
     if (!enabled) return;
@@ -80,12 +83,14 @@ export class QuestStateReconciliationProcessor {
 
       const quests = await this.questRepository.find({
         take: batchSize,
-        order: { updatedAt: 'DESC' as any },
+        order: { updatedAt: 'DESC' },
       });
 
       const candidates = quests.filter((q) => q.contractTaskId);
       if (candidates.length === 0) {
-        this.logger.log('Quest reconciliation: no quests with contractTaskId found');
+        this.logger.log(
+          'Quest reconciliation: no quests with contractTaskId found',
+        );
       }
 
       let processed = 0;
@@ -99,7 +104,10 @@ export class QuestStateReconciliationProcessor {
           );
         }
 
-        const onChain = await this.questReader.getQuest(contractId, quest.contractTaskId);
+        const onChain = await this.questReader.getQuest(
+          contractId,
+          quest.contractTaskId,
+        );
         if (!onChain) {
           discrepancies.push({
             questId: quest.id,
@@ -110,8 +118,20 @@ export class QuestStateReconciliationProcessor {
         }
 
         // Compare fields we can map reliably between DB row and on-chain struct.
-        this.compareField(discrepancies, quest, onChain, 'creatorAddress', 'creator');
-        this.compareField(discrepancies, quest, onChain, 'rewardAsset', 'reward_asset');
+        this.compareField(
+          discrepancies,
+          quest,
+          onChain,
+          'creatorAddress',
+          'creator',
+        );
+        this.compareField(
+          discrepancies,
+          quest,
+          onChain,
+          'rewardAsset',
+          'reward_asset',
+        );
 
         // rewardAmount is number in DB; compare as BigInt to avoid float edge cases.
         if (quest.rewardAmount !== undefined && quest.rewardAmount !== null) {
@@ -129,7 +149,9 @@ export class QuestStateReconciliationProcessor {
         }
 
         if (quest.deadline) {
-          const dbDeadlineSeconds = BigInt(Math.floor(new Date(quest.deadline).getTime() / 1000));
+          const dbDeadlineSeconds = BigInt(
+            Math.floor(new Date(quest.deadline).getTime() / 1000),
+          );
           if (dbDeadlineSeconds !== onChain.deadline) {
             discrepancies.push({
               questId: quest.id,
@@ -199,7 +221,10 @@ export class QuestStateReconciliationProcessor {
         progressMessage: `Done (${discrepancies.length} discrepancies)`,
       });
     } catch (error) {
-      this.logger.error(`Quest reconciliation job failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Quest reconciliation job failed: ${error.message}`,
+        error.stack,
+      );
       await this.jobLogService.updateJobLog(jobLog.id, {
         status: JobStatus.FAILED,
         completedAt: new Date(),

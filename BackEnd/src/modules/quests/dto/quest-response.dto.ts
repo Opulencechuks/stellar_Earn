@@ -8,7 +8,9 @@ export class QuestResponseDto {
   @ApiProperty({ example: 'Complete KYC Verification' })
   title: string;
 
-  @ApiProperty({ example: 'Complete the KYC verification process to earn rewards' })
+  @ApiProperty({
+    example: 'Complete the KYC verification process to earn rewards',
+  })
   description: string;
 
   @ApiProperty({ example: 10.5 })
@@ -17,7 +19,9 @@ export class QuestResponseDto {
   @ApiProperty({ example: 'ACTIVE' })
   status: string;
 
-  @ApiProperty({ example: 'GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' })
+  @ApiProperty({
+    example: 'GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+  })
   createdBy: string;
 
   @ApiProperty({ example: '2026-01-23T12:34:56.000Z' })

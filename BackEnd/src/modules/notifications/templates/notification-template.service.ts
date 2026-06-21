@@ -9,7 +9,8 @@ export enum NotificationTemplateType {
 
 @Injectable()
 export class NotificationTemplateService {
-  private templates: Map<NotificationTemplateType, (data: any) => string> = new Map();
+  private templates: Map<NotificationTemplateType, (data: any) => string> =
+    new Map();
 
   constructor() {
     this.initializeTemplates();
@@ -18,15 +19,18 @@ export class NotificationTemplateService {
   private initializeTemplates() {
     this.templates.set(
       NotificationTemplateType.SUBMISSION_APPROVED,
-      (data) => `Congratulations! Your submission for "${data.questTitle}" has been approved. You've earned ${data.rewardAmount} tokens.`,
+      (data) =>
+        `Congratulations! Your submission for "${data.questTitle}" has been approved. You've earned ${data.rewardAmount} tokens.`,
     );
     this.templates.set(
       NotificationTemplateType.SUBMISSION_REJECTED,
-      (data) => `Your submission for "${data.questTitle}" was not approved. Reason: ${data.reason}`,
+      (data) =>
+        `Your submission for "${data.questTitle}" was not approved. Reason: ${data.reason}`,
     );
     this.templates.set(
       NotificationTemplateType.QUEST_UPDATE,
-      (data) => `There is an update on the quest "${data.questTitle}". Check it out!`,
+      (data) =>
+        `There is an update on the quest "${data.questTitle}". Check it out!`,
     );
     this.templates.set(
       NotificationTemplateType.SYSTEM,

@@ -88,7 +88,7 @@ describe('QuestsService', () => {
         .spyOn(QuestResponseDto, 'fromEntity')
         .mockReturnValue(entity as any);
 
-      const result = await service.create(dto as any, creator);
+      const result = await service.create(dto, creator);
       expect(repo.save).toHaveBeenCalledTimes(1);
       expect(emitter.emit).toHaveBeenCalledWith(
         'quest.created',
@@ -114,7 +114,7 @@ describe('QuestsService', () => {
 
       jest.spyOn(QuestResponseDto, 'fromEntity').mockReturnValue(entity);
 
-      const result = await service.create(dto as any, creator);
+      const result = await service.create(dto, creator);
 
       expect(result).toEqual(entity);
     });

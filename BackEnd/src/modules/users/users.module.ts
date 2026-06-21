@@ -8,10 +8,7 @@ import { User } from './entities/user.entity';
 import { UserExperienceListener } from './events/user-experience.listener';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    EventEmitterModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User]), EventEmitterModule],
   controllers: [UserController],
   providers: [UserService, UserExperienceListener],
   exports: [UserService],

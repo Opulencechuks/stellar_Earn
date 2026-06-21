@@ -81,7 +81,9 @@ describe('PayoutsService settlement finality', () => {
     jest
       .spyOn(service as any, 'executeStellarPayment')
       .mockResolvedValue({ transactionHash: 'tx-123', ledger: 100 });
-    jest.spyOn(service as any, 'getCurrentStellarLedger').mockResolvedValue(101);
+    jest
+      .spyOn(service as any, 'getCurrentStellarLedger')
+      .mockResolvedValue(101);
 
     await service.processPayout(payout.id);
 
@@ -107,7 +109,9 @@ describe('PayoutsService settlement finality', () => {
     jest
       .spyOn(service as any, 'executeStellarPayment')
       .mockResolvedValue({ transactionHash: 'tx-123', ledger: 100 });
-    jest.spyOn(service as any, 'getCurrentStellarLedger').mockResolvedValue(102);
+    jest
+      .spyOn(service as any, 'getCurrentStellarLedger')
+      .mockResolvedValue(102);
 
     await service.processPayout(payout.id);
 
@@ -136,7 +140,9 @@ describe('PayoutsService settlement finality', () => {
     });
     repo.find.mockResolvedValue([payout]);
     const executeSpy = jest.spyOn(service as any, 'executeStellarPayment');
-    jest.spyOn(service as any, 'getCurrentStellarLedger').mockResolvedValue(105);
+    jest
+      .spyOn(service as any, 'getCurrentStellarLedger')
+      .mockResolvedValue(105);
 
     await service.confirmPendingSettlements();
 

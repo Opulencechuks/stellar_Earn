@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsNumber, IsEnum, IsArray, IsBoolean, IsDate } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsArray,
+  IsBoolean,
+  IsDate,
+} from 'class-validator';
 import { IncidentSeverity, PostmortemStatus } from './postmortem.entity';
 
 // Create/Update DTO
