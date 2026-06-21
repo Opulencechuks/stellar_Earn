@@ -66,6 +66,15 @@ describe('Submission Create + Approve flow (e2e)', () => {
   let stellarService: any;
   let notificationsService: any;
   let eventEmitter: { emit: jest.Mock };
+  let mockEntityManager: any;
+
+  /**
+   * The capacity-gate conditional UPDATE returns `affected: 1` on success
+   * and `affected: 0` when the WHERE clause filtered out everything (quest
+   * doesn't exist, isn't ACTIVE, or is at capacity). Tests flip this
+   * between assertions to drive the failure paths.
+   */
+  let nextCapacityAffected = 1;
 
   /**
    * Build a saved-shaped submission that the service fills out on
@@ -111,6 +120,31 @@ describe('Submission Create + Approve flow (e2e)', () => {
     },
   });
 
+  /**
+   * Wire the next-capacity-affected value onto the mockEntityManager.
+   * Reset between tests via `setNextCapacityAffected(1)`.
+   */
+  const setupEntityManagerMock = () => {
+    const execute = jest
+      .fn()
+      .mockResolvedValue({ affected: nextCapacityAffected });
+    const andWhere = jest.fn().mockReturnValue({ execute });
+    const where = jest.fn().mockReturnValue({ andWhere });
+    const set = jest.fn().mockReturnValue({ where });
+    const update = jest.fn().mockReturnValue({ set });
+    mockEntityManager = {
+      createQueryBuilder: jest.fn(() => ({ update })),
+      create: jest.fn((_Entity: any, payload: Submission) => ({
+        ...payload,
+        id: SUBMISSION_ID,
+        status: SubmissionStatus.PENDING,
+      })),
+      save: jest.fn((submission: Submission) =>
+        Promise.resolve({ ...submission, id: submission.id ?? SUBMISSION_ID }),
+      ),
+    };
+  };
+
   beforeAll(async () => {
     submissionsRepo = {
       findOne: jest.fn(),
@@ -118,6 +152,14 @@ describe('Submission Create + Approve flow (e2e)', () => {
       create: jest.fn(),
       save: jest.fn(),
       update: jest.fn().mockResolvedValue(undefined),
+      // manager.transaction powers the new atomic-capacity-gate flow.
+      // We invoke the callback synchronously with a mock EntityManager
+      // so the chain for the conditional UPDATE is observable.
+      manager: {
+        transaction: jest.fn(async (cb: any) => cb(mockEntityManager)),
+      },
+      // createQueryBuilder on the repo is used by approveSubmission's
+      // CAS update; kept separate from the entityManager chain.
       createQueryBuilder: jest.fn(() => ({
         update: jest.fn().mockReturnThis(),
         set: jest.fn().mockReturnThis(),
@@ -153,6 +195,8 @@ describe('Submission Create + Approve flow (e2e)', () => {
     };
 
     eventEmitter = { emit: jest.fn().mockReturnValue(undefined) };
+
+    setupEntityManagerMock();
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [SubmissionsController],
@@ -205,17 +249,16 @@ describe('Submission Create + Approve flow (e2e)', () => {
       transactionHash: APPROVE_TX_HASH,
       ledger: 42,
     });
+    // Re-init the entityManager mock so each test gets a fresh chain.
+    nextCapacityAffected = 1;
+    setupEntityManagerMock();
   });
 
   // ──────────────────────────────────────────────────────────────────────
   // CREATE — POST /quests/:questId/submissions
   // ──────────────────────────────────────────────────────────────────────
   describe('POST /quests/:questId/submissions', () => {
-    it('201 happy path: persisted PENDING, submission.created emitted', async () => {
-      const saved = buildSavedSubmission();
-      submissionsRepo.create.mockReturnValue(saved);
-      submissionsRepo.save.mockResolvedValue(saved);
-
+    it('201 happy path: capacity gate passes inside transaction, submission.created emitted', async () => {
       const res = await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)
@@ -230,15 +273,24 @@ describe('Submission Create + Approve flow (e2e)', () => {
       expect(res.body.data.submission.status).toBe('PENDING');
       expect(res.body.data.submission.proof.fileName).toBe('kyc.pdf');
 
-      expect(submissionsRepo.create).toHaveBeenCalledTimes(1);
-      const createdArg = submissionsRepo.create.mock.calls[0][0];
+      // The new flow must have invoked the transaction-mocked manager and
+      // the entityManager chain for the capacity gate.
+      expect(submissionsRepo.manager.transaction).toHaveBeenCalledTimes(1);
+      expect(mockEntityManager.createQueryBuilder).toHaveBeenCalled();
+
+      // The submission row was created and saved INSIDE the transaction.
+      expect(mockEntityManager.create).toHaveBeenCalledTimes(1);
+      const createdArg = mockEntityManager.create.mock.calls[0][1];
       expect(createdArg).toMatchObject({
         questId: QUEST_ID,
         userId: SUBMITTER_ID,
         status: 'PENDING',
       });
+      expect(mockEntityManager.save).toHaveBeenCalledTimes(1);
 
-      expect(submissionsRepo.save).toHaveBeenCalledTimes(1);
+      // Submissions repo .create/.save are no longer used by createSubmission.
+      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      expect(submissionsRepo.save).not.toHaveBeenCalled();
 
       const createdEvent = eventEmitter.emit.mock.calls.find(
         (call: any[]) => call[0] === 'submission.created',
@@ -246,7 +298,7 @@ describe('Submission Create + Approve flow (e2e)', () => {
       expect(createdEvent).toBeDefined();
     });
 
-    it('400 when the submitter has no Stellar wallet linked', async () => {
+    it('400 when the submitter has no Stellar wallet linked (no DB write)', async () => {
       submitterRecord.stellarAddress = null;
 
       const res = await request(app.getHttpServer())
@@ -259,10 +311,16 @@ describe('Submission Create + Approve flow (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST);
 
       expect(res.body.message).toMatch(/stellar wallet/i);
-      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      // The validator-before-mutate invariant: capacity-gate transaction
+      // must NOT have run.
+      expect(submissionsRepo.manager.transaction).not.toHaveBeenCalled();
+      expect(mockEntityManager.create).not.toHaveBeenCalled();
     });
 
-    it('404 when the quest does not exist', async () => {
+    it('404 when the quest does not exist (capacity gate succeeds? No \u2014 rejects at disambiguation)', async () => {
+      // Force capacity gate to fail so the disambiguation re-fetch runs.
+      nextCapacityAffected = 0;
+      setupEntityManagerMock();
       questsRepo.findOne.mockResolvedValueOnce(null);
 
       await request(app.getHttpServer())
@@ -271,38 +329,47 @@ describe('Submission Create + Approve flow (e2e)', () => {
         .send({ fileName: 'kyc.pdf', fileContent: 'b64' })
         .expect(HttpStatus.NOT_FOUND);
 
-      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      // transaction was attempted, sentinel-threw, but the disambiguation
+      // re-read confirmed the quest does not exist.
+      expect(submissionsRepo.manager.transaction).toHaveBeenCalledTimes(1);
+      expect(mockEntityManager.create).not.toHaveBeenCalled();
     });
 
-    it('400 when the quest is not ACTIVE (e.g. PAUSED)', async () => {
+    it('400 when the quest is not ACTIVE (disambiguation surfaces precise error)', async () => {
+      nextCapacityAffected = 0;
+      setupEntityManagerMock();
       questsRepo.findOne.mockResolvedValueOnce({
         ...questRecord,
         status: 'PAUSED',
       });
 
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)
         .send({ fileName: 'kyc.pdf', fileContent: 'b64' })
         .expect(HttpStatus.BAD_REQUEST);
 
-      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      expect(res.body.message).toMatch(/not accepting submissions/i);
+      expect(mockEntityManager.create).not.toHaveBeenCalled();
     });
 
     it('400 when the quest has reached its maximum completions', async () => {
+      nextCapacityAffected = 0;
+      setupEntityManagerMock();
       questsRepo.findOne.mockResolvedValueOnce({
         ...questRecord,
         currentCompletions: 100,
         maxCompletions: 100,
       });
 
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)
         .send({ fileName: 'kyc.pdf', fileContent: 'b64' })
         .expect(HttpStatus.BAD_REQUEST);
 
-      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      expect(res.body.message).toMatch(/maximum completions/i);
+      expect(mockEntityManager.create).not.toHaveBeenCalled();
     });
 
     it('400 when the body is invalid (empty fileName)', async () => {
@@ -312,10 +379,10 @@ describe('Submission Create + Approve flow (e2e)', () => {
         .send({ fileName: '', fileContent: 'b64' })
         .expect(HttpStatus.BAD_REQUEST);
 
-      expect(submissionsRepo.create).not.toHaveBeenCalled();
+      expect(submissionsRepo.manager.transaction).not.toHaveBeenCalled();
     });
 
-    it('401 when the auth override denies the request', async () => {
+    it('403 when the auth override denies the request', async () => {
       await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-Auth', 'deny')
@@ -330,10 +397,6 @@ describe('Submission Create + Approve flow (e2e)', () => {
   describe('POST /quests/:questId/submissions/:id/approve (after submit)', () => {
     it('full happy path: submit -> approve -> status APPROVED + txHash persisted', async () => {
       // ── Step 1: SUBMIT ────────────────────────────────────────────────
-      const created = buildSavedSubmission();
-      submissionsRepo.create.mockReturnValue(created);
-      submissionsRepo.save.mockResolvedValue(created);
-
       const submitRes = await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)
@@ -394,11 +457,8 @@ describe('Submission Create + Approve flow (e2e)', () => {
       expect(completedEvent).toBeDefined();
     });
 
-    it('chain call fails: rolls DB status back, returns 500 with chain error, no notification', async () => {
+    it('chain call fails: rolls DB status back, returns 400 with chain error, no notification', async () => {
       // ── Step 1: SUBMIT (success) ──────────────────────────────────────
-      const created = buildSavedSubmission();
-      submissionsRepo.create.mockReturnValue(created);
-      submissionsRepo.save.mockResolvedValue(created);
       await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)
@@ -423,10 +483,12 @@ describe('Submission Create + Approve flow (e2e)', () => {
       expect(res.body.message).toMatch(/On-chain approval failed|QuestNotFound/);
 
       // Rollback path: status reverts to PENDING, approved_* cleared.
-      const rollbackCall = submissionsRepo.update.mock.calls.find((call: any[]) => {
-        const payload = call[1];
-        return payload?.status === 'PENDING' && payload?.approvedBy == null;
-      });
+      const rollbackCall = submissionsRepo.update.mock.calls.find(
+        (call: any[]) => {
+          const payload = call[1];
+          return payload?.status === 'PENDING' && payload?.approvedBy == null;
+        },
+      );
       expect(rollbackCall).toBeDefined();
 
       // No txHash must have been written.
@@ -441,9 +503,6 @@ describe('Submission Create + Approve flow (e2e)', () => {
 
     it('verifier must have a Stellar wallet: 400 BadRequest, no DB write', async () => {
       // Submit (success)
-      const created = buildSavedSubmission();
-      submissionsRepo.create.mockReturnValue(created);
-      submissionsRepo.save.mockResolvedValue(created);
       await request(app.getHttpServer())
         .post(`/quests/${QUEST_ID}/submissions`)
         .set('X-Test-User-Id', SUBMITTER_ID)

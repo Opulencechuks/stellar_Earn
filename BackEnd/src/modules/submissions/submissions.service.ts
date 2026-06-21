@@ -5,9 +5,24 @@ import {
   BadRequestException,
   ForbiddenException,
   ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
+
+/**
+ * Sentinel error thrown inside the capacity-gate transaction when the
+ * conditional UPDATE returns zero affected rows. We deliberately throw a
+ * typed sentinel rather than a NestJS HTTP exception so the transaction
+ * rolls back cleanly; the outer catch is responsible for re-fetching the
+ * quest and surfacing the right exception type to the caller.
+ */
+class CapacityGateFailedError extends Error {
+  constructor() {
+    super('Capacity gate did not match any quest row');
+    this.name = 'CapacityGateFailedError';
+  }
+}
 import { Submission, SubmissionStatus } from './entities/submission.entity';
 import { ApproveSubmissionDto } from './dto/approve-submission.dto';
 import { RejectSubmissionDto } from './dto/reject-submission.dto';
@@ -55,10 +70,24 @@ export class SubmissionsService {
   /**
    * Create a new submission for a quest.
    *
-   * Validates the submitter's status BEFORE we write anything:
-   *   1. Authenticated user exists AND has a Stellar wallet linked.
-   *   2. The quest exists, is ACTIVE, and has not reached its max completions.
-   * Then INSERTs the row in PENDING and emits a `submission.created` event.
+   * Three pre-flight gates run BEFORE any DB write, preserving the
+   * validator-before-mutate invariant:
+   *   1. Authenticated user exists.
+   *   2. Authenticated user has a Stellar wallet linked.
+   *
+   * Then, inside a single transaction:
+   *   3. Atomic capacity gate via a conditional UPDATE that atomically
+   *      increments `quest.currentCompletions` only if the quest exists,
+   *      is ACTIVE, AND the row still has remaining capacity.
+   *   4. INSERT the new Submission row in PENDING.
+   *
+   * Both writes share the same transaction so a failure of the INSERT
+   * after the increment rolls back the increment — no leaked capacity.
+   *
+   * If the conditional UPDATE returns zero affected rows, we throw a
+   * typed sentinel inside the transaction (causing rollback) then
+   * re-fetch the quest in the outer catch to disambiguate NotFound vs
+   * not-ACTIVE vs full and surface the right typed exception.
    *
    * @param questId  Quest the submission is for (UUID from path).
    * @param dto      Validated proof payload. userId is NOT in this DTO; the
@@ -70,8 +99,8 @@ export class SubmissionsService {
     dto: CreateSubmissionDto,
     userId: string,
   ): Promise<Submission> {
-    // Submitter gate: must have a Stellar wallet linked so a later on-chain
-    // approve flow has the public key it needs.
+    // 1. Submitter gate — runs OUTSIDE the transaction so we don't
+    //    hold a row lock while checking an unrelated table.
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       withDeleted: false,
@@ -85,36 +114,82 @@ export class SubmissionsService {
       );
     }
 
-    // Quest gate: must exist, be ACTIVE, and have remaining capacity.
-    const quest = await this.questsRepository.findOne({
-      where: { id: questId },
-      withDeleted: false,
-    });
-    if (!quest) {
-      throw new NotFoundException(`Quest with ID ${questId} not found`);
-    }
-    if (quest.status !== 'ACTIVE') {
-      throw new BadRequestException(
-        `Quest is not accepting submissions (current status: ${quest.status})`,
+    // 2. Atomic capacity gate + submission INSERT in one transaction.
+    //    The conditional WHERE narrows the row-level lock to the single
+    //    quest row, so the lock is held for microseconds.
+    let saved: Submission | undefined;
+    try {
+      await this.submissionsRepository.manager.transaction(
+        async (entityManager) => {
+          const capacityResult = await entityManager
+            .createQueryBuilder()
+            .update(Quest)
+            .set({
+              currentCompletions: () => 'currentCompletions + 1',
+              // TypeORM's QueryBuilder.update() does not auto-update
+              // @UpdateDateColumn — we set it explicitly so the quest
+              // row reflects the most recent submission time.
+              updatedAt: () => 'CURRENT_TIMESTAMP',
+            })
+            .where('id = :questId', { questId })
+            .andWhere('status = :active', { active: 'ACTIVE' })
+            .andWhere(
+              new Brackets((qb) => {
+                qb.where('maxCompletions IS NULL').orWhere(
+                  'currentCompletions < maxCompletions',
+                );
+              }),
+            )
+            .execute();
+          if (!capacityResult.affected) {
+            // Sentinel-throw inside the transaction ⇒ rollback. The
+            // outer catch re-reads the quest to disambiguate.
+            throw new CapacityGateFailedError();
+          }
+          const submission = entityManager.create(Submission, {
+            questId,
+            userId,
+            proof: {
+              fileName: dto.fileName,
+              fileContent: dto.fileContent,
+            },
+            status: SubmissionStatus.PENDING,
+            verifierNotes: dto.notes ?? null,
+          });
+          saved = await entityManager.save(submission);
+        },
       );
-    }
-    if (
-      typeof quest.maxCompletions === 'number' &&
-      quest.currentCompletions >= quest.maxCompletions
-    ) {
-      throw new BadRequestException(
-        'Quest has reached its maximum completions',
-      );
+    } catch (err) {
+      if (err instanceof CapacityGateFailedError) {
+        // Re-fetch the quest to disambiguate the failure cause. This is
+        // a cheap read; we accept the extra round-trip in exchange for
+        // a precise exception type to the caller.
+        const current = await this.questsRepository.findOne({
+          where: { id: questId },
+          withDeleted: false,
+        });
+        if (!current) {
+          throw new NotFoundException(`Quest with ID ${questId} not found`);
+        }
+        if (current.status !== 'ACTIVE') {
+          throw new BadRequestException(
+            `Quest is not accepting submissions (current status: ${current.status})`,
+          );
+        }
+        throw new BadRequestException(
+          'Quest has reached its maximum completions',
+        );
+      }
+      throw err;
     }
 
-    const submission = this.submissionsRepository.create({
-      questId,
-      userId,
-      proof: { fileName: dto.fileName, fileContent: dto.fileContent },
-      status: SubmissionStatus.PENDING,
-      verifierNotes: dto.notes ?? null,
-    });
-    const saved = await this.submissionsRepository.save(submission);
+    // Saved cannot be undefined here because the transaction either
+    // committed (saved was set) or threw (caught above).
+    if (!saved) {
+      throw new InternalServerErrorException(
+        'Submission save failed inside transaction',
+      );
+    }
 
     this.eventEmitter.emit(
       'submission.created',
