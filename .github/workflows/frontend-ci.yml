@@ -1,0 +1,57 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "FrontEnd/**"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "FrontEnd/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  frontend-ci:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: FrontEnd/my-app
+
+    steps:
+      #  Checkout code
+      - uses: actions/checkout@v4
+
+      #  Setup Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: FrontEnd/my-app/package-lock.json
+
+      #  Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      #  Lint
+      - name: Run ESLint
+        run: npm run lint
+
+      #  Type check (TypeScript)
+      - name: Type check
+        run: npx tsc --noEmit
+
+      #  Format check (Prettier)
+      - name: Check formatting
+        run: npm run format:check
+
+      #  Run tests (Vitest / Jest etc.)
+      - name: Run tests
+        run: npm test
+
+      #  Build app (Next.js)
+      - name: Build
+        run: npm run build
