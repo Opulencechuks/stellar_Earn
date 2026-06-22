@@ -14,7 +14,7 @@ on:
 
 jobs:
   frontend-ci:
-    name: Lint, Typecheck, Test & Build
+    name: Lint, Typecheck, Format, Test & Build
     runs-on: ubuntu-latest
 
     defaults:
@@ -22,7 +22,7 @@ jobs:
         working-directory: FrontEnd/my-app
 
     steps:
-      #  Checkout code
+      #  Checkout repo
       - uses: actions/checkout@v4
 
       #  Setup Node
@@ -37,21 +37,25 @@ jobs:
         run: npm ci
 
       #  Lint
-      - name: Run ESLint
+      - name: Lint
         run: npm run lint
 
-      #  Type check (TypeScript)
+      #  Type check (use your script )
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-      #  Format check (Prettier)
-      - name: Check formatting
+      #  Validate path aliases (important in your project)
+      - name: Validate path aliases
+        run: npm run validate:path-aliases
+
+      #  Prettier formatting check
+      - name: Format check
         run: npm run format:check
 
-      #  Run tests (Vitest / Jest etc.)
-      - name: Run tests
-        run: npm test
+      #  Run tests (Vitest )
+      - name: Tests
+        run: npm run test
 
-      #  Build app (Next.js)
+      #  Build Next.js app
       - name: Build
         run: npm run build
