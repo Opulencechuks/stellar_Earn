@@ -82,5 +82,6 @@ declare module 'vitest' {
     toHaveClass(...args: unknown[]): void;
     toHaveAttribute(...args: unknown[]): void;
     toBeDisabled(...args: unknown[]): void;
+    toHaveFocus(): void;
   }
 }

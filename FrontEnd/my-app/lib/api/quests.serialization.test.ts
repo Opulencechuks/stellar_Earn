@@ -258,7 +258,7 @@ describe('QuestResponse – minimal fixture (only required fields)', () => {
 });
 
 describe('QuestResponse – null optional fields fixture', () => {
-  const quest = questNullOptionalsFixture as QuestResponse;
+  const quest = questNullOptionalsFixture as unknown as QuestResponse;
 
   it('passes all required field assertions', () => {
     assertRequiredQuestFields(quest);
