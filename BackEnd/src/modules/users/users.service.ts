@@ -153,6 +153,3 @@ export class UsersService {
     });
   }
 }
-
-// Backward-compatible alias for existing imports/tests that use UserService.
-export class UserService extends UsersService {}
