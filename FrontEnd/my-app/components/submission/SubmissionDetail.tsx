@@ -22,7 +22,9 @@ export function SubmissionDetail({
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
-  const [localSubmission, setLocalSubmission] = useState<Submission | null>(null);
+  const [localSubmission, setLocalSubmission] = useState<Submission | null>(
+    null
+  );
 
   useEffect(() => {
     if (submission) {
@@ -245,7 +247,10 @@ export function SubmissionDetail({
                 <button
                   onClick={() => {
                     // TODO: Implement claim reward functionality
-                    console.log('Claim reward for submission:', localSubmission.id);
+                    console.log(
+                      'Claim reward for submission:',
+                      localSubmission.id
+                    );
                   }}
                   className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >

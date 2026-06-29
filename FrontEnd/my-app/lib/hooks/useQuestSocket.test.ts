@@ -49,7 +49,10 @@ describe('useQuestSocket', () => {
       })
     );
 
-    expect(io).toHaveBeenCalledWith('http://localhost:3000', expect.any(Object));
+    expect(io).toHaveBeenCalledWith(
+      'http://localhost:3000',
+      expect.any(Object)
+    );
     expect(mockSocket.connect).toHaveBeenCalled();
     expect(mockSocket.auth).toEqual({ token: 'Bearer test-jwt-token' });
   });

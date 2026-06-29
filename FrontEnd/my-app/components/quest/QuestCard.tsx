@@ -93,7 +93,9 @@ export const QuestCard = memo(
     const { deadline, reward, compactReward } = useFormatter();
 
     // Localised deadline label: "Ends in 3 days" | "Expired" | null
-    const timeLabel = localQuest.deadline ? deadline(localQuest.deadline) : null;
+    const timeLabel = localQuest.deadline
+      ? deadline(localQuest.deadline)
+      : null;
 
     // Urgency check is now locale-independent (raw ms comparison)
     const isUrgent = isDeadlineUrgent(localQuest.deadline);

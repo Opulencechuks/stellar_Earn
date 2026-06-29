@@ -58,8 +58,14 @@ function setupSharedSocketListeners(socket: Socket) {
   // Automatically subscribe to active rooms on reconnect
   socket.on('connect', () => {
     for (const questId of questCallbackRegistry.keys()) {
-      socket.emit('subscribe', { channel: 'quest:updated', resourceId: questId });
-      socket.emit('subscribe', { channel: 'submission:status', resourceId: questId });
+      socket.emit('subscribe', {
+        channel: 'quest:updated',
+        resourceId: questId,
+      });
+      socket.emit('subscribe', {
+        channel: 'submission:status',
+        resourceId: questId,
+      });
     }
   });
 
@@ -77,7 +83,11 @@ function setupSharedSocketListeners(socket: Socket) {
   });
 
   socket.on('submission:received', (payload: unknown) => {
-    const data = (payload as { data?: { submissionId: string; questId: string; userId: string } })?.data;
+    const data = (
+      payload as {
+        data?: { submissionId: string; questId: string; userId: string };
+      }
+    )?.data;
     const questId = data?.questId;
     if (questId && data) {
       const registries = questCallbackRegistry.get(questId);
@@ -95,7 +105,11 @@ function setupSharedSocketListeners(socket: Socket) {
   });
 
   socket.on('submission:approved', (payload: unknown) => {
-    const data = (payload as { data?: { submissionId: string; questId: string; verifierId: string } })?.data;
+    const data = (
+      payload as {
+        data?: { submissionId: string; questId: string; verifierId: string };
+      }
+    )?.data;
     const questId = data?.questId;
     if (questId && data) {
       const registries = questCallbackRegistry.get(questId);
@@ -113,7 +127,9 @@ function setupSharedSocketListeners(socket: Socket) {
   });
 
   socket.on('submission:rejected', (payload: unknown) => {
-    const data = (payload as { data?: { submissionId: string; reason?: string } })?.data;
+    const data = (
+      payload as { data?: { submissionId: string; reason?: string } }
+    )?.data;
     if (data?.submissionId) {
       const submissionEvent: SubmissionStatusEvent = {
         submissionId: data.submissionId,
@@ -153,7 +169,8 @@ export function useQuestSocket(options: UseQuestSocketOptions): {
     const proxyOptions: UseQuestSocketOptions = {
       questId,
       onQuestUpdated: (data) => callbacksRef.current.onQuestUpdated?.(data),
-      onSubmissionUpdated: (data) => callbacksRef.current.onSubmissionUpdated?.(data),
+      onSubmissionUpdated: (data) =>
+        callbacksRef.current.onSubmissionUpdated?.(data),
     };
 
     let callbacksSet = questCallbackRegistry.get(questId);
@@ -166,8 +183,14 @@ export function useQuestSocket(options: UseQuestSocketOptions): {
 
     if (socket.connected) {
       setIsConnected(true);
-      socket.emit('subscribe', { channel: 'quest:updated', resourceId: questId });
-      socket.emit('subscribe', { channel: 'submission:status', resourceId: questId });
+      socket.emit('subscribe', {
+        channel: 'quest:updated',
+        resourceId: questId,
+      });
+      socket.emit('subscribe', {
+        channel: 'submission:status',
+        resourceId: questId,
+      });
     } else {
       const token = tokenManager.getAccessToken();
       socket.auth = {
@@ -207,8 +230,14 @@ export function useQuestSocket(options: UseQuestSocketOptions): {
         if (callbacks.size === 0) {
           questCallbackRegistry.delete(questId);
           if (socket.connected) {
-            socket.emit('unsubscribe', { channel: 'quest:updated', resourceId: questId });
-            socket.emit('unsubscribe', { channel: 'submission:status', resourceId: questId });
+            socket.emit('unsubscribe', {
+              channel: 'quest:updated',
+              resourceId: questId,
+            });
+            socket.emit('unsubscribe', {
+              channel: 'submission:status',
+              resourceId: questId,
+            });
           }
         }
       }
