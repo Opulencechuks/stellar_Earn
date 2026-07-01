@@ -20,17 +20,25 @@ export function middleware(request: NextRequest) {
 
   // Determine CSP header key based on environment
   const isDev = process.env.NODE_ENV !== 'production';
-  const headerKey = isDev ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy';
+  const headerKey = isDev
+    ? 'Content-Security-Policy-Report-Only'
+    : 'Content-Security-Policy';
 
   // Prepare response object
-  const response = intlResponse instanceof NextResponse ? intlResponse : NextResponse.next();
+  const response =
+    intlResponse instanceof NextResponse
+      ? intlResponse
+      : NextResponse.next();
 
   // Fix: Properly handle cspHeaders structure and replace key based on environment
-  cspHeaders.forEach(config => {
+  cspHeaders.forEach((config) => {
     if (config.headers && Array.isArray(config.headers)) {
-      config.headers.forEach(header => {
+      config.headers.forEach((header) => {
         if (header.key === 'Content-Security-Policy') {
-          const value = header.value.replace(/'unsafe-inline'/g, `'nonce-${nonce}'`);
+          const value = header.value.replace(
+            /'unsafe-inline'/g,
+            `'nonce-${nonce}'`
+          );
           response.headers.set(headerKey, value);
         } else {
           response.headers.set(header.key, header.value);
@@ -48,3 +56,4 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/', '/(es|en)/:path*', '/((?!api|_next|_static|.*\\..*).*)'],
 };
+
